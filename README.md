@@ -1,5 +1,18 @@
 # tea-platform-front
-茶莫停wap版
+茶莫停wap版<br>
+
+<pre style="background-color:#2b2b2b;color:#a9b7c6;font-family:'Courier New';font-size:13.5pt;">
+# 项目预览<br>
+第一步：初始化项目<br>
+      npm install<br>
+第二步：开启node服务，进入服务器环境<br>
+      npm run dev<br>
+      如页面没有自动打开，请打开浏览器输入localhost:8080<br>
+第三步：打包项目，发布到正式环境<br>
+      npm run biuld<br><br>
+# 项目正式发布的访问地址为：<br>
+      tea.51feijin.com
+</pre>
 
 <pre style="background-color:#2b2b2b;color:#a9b7c6;font-family:'Courier New';font-size:13.5pt;">
 new/Search.vue        搜索页面<br>
