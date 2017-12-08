@@ -11,7 +11,7 @@
 第三步：打包项目，发布到正式环境<br>
       npm run biuld<br><br>
 # 项目正式发布的访问地址为：<br>
-      tea.51feijin.com
+      http://tea.51feijin.com
 </pre>
 
 <pre style="background-color:#2b2b2b;color:#a9b7c6;font-family:'Courier New';font-size:13.5pt;">
