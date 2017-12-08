@@ -1,0 +1,265 @@
+<template>
+  <div id="evaluate">
+    <!--头部-->
+    <header class="header">
+      <a onclick="history.back()">
+        <i class="back-pre"></i>
+      </a>
+      <span class="title">发表评价</span>
+    </header>
+
+    <section class="content">
+      <!--用户评价-->
+      <div class="one clearfix">
+        <textarea v-model="textarea" maxlength="200" class="textarea" placeholder="请输入您的宝贵评价"></textarea>
+        <div class="length">
+          <span class="num">{{textarea.length}}</span><span class="max-length">/200</span>
+        </div>
+      </div>
+
+      <!--上传图片-->
+      <div class="two">
+        <div class="caption">添加图片（选填，最多3张）</div>
+        <ul class="img-box clearfix">
+          <li v-for="item in arr" class="clearfix">
+            <img :src="item"/>
+            <i @click="deleteImg($event)" class="close"></i>
+          </li>
+          <li>
+            <input @change="updataImg($event)" id="file" type="file" />
+          </li>
+        </ul>
+      </div>
+
+      <div class="submit">
+        <a @click="sumbitIdea">发表评价</a>
+      </div>
+    </section>
+
+  </div>
+</template>
+
+<script>
+  import {con} from "../../assets/js/common"
+  import $ from "jquery"
+
+  let self;
+  export default {
+    data () {
+      return {
+        textarea: "",
+        imgLength:3,
+        arr:[],
+        userImg:"",
+      }
+    },
+    watch:{
+      textarea(newVal){
+        if(newVal.trim().length >= 200){
+          con.toast("已到达最大长度");
+        }
+      },
+      contact(value){
+        this.hasGetPhone = /^1[34578]\d{9}$/.test(value);
+      }
+    },
+    created() {
+      self = this;
+    },
+    methods:{
+      /**
+       * 提交意见
+       */
+      sumbitIdea(){
+        if(self.textarea.length < 3){
+          con.toast("请输入评价");
+        }else{
+          con.post("/api/comment/product",{
+            "content":self.textarea,
+            "itemId":this.$route.query.id,
+            "name":self.userImg
+          },(response) => {
+            if(response.result === 1){
+              con.toast("提交成功，我们会根据您的意见不断改进");
+              setTimeout(() => {
+                history.back();
+              },2000)
+            }else{
+              con.toast(response.msg)
+            }
+          })
+        }
+      },
+      /**
+       * 删除图片
+       * @param e 当前元素
+       */
+      deleteImg(e){
+        if(self.arr.length) {
+          self.arr.splice($(e.target.parentNode).index(), 1);//删除当前元素的下标
+          con.toast("删除成功");
+          self.userImg = self.arr.join(";");
+        }
+      },
+      /**
+       * 上传图片
+       * @param e 当前元素
+       */
+      updataImg(e){
+        let file = e.target.files[0];
+        let reader = new FileReader();
+        reader.onloadend = function () {
+          let img = this.result;
+          if(self.arr.length < self.imgLength){
+            con.post("/api/upload/image",{
+              "data" : img
+            },(response) => {
+              self.arr.push(response.data.src);
+              self.userImg = self.arr.join(",");
+              if(e.target.value){//清空input value值
+                e.target.value = "";
+              }
+            })
+          }else{
+            con.toast("最多上传三张图片");
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+  }
+</script>
+
+<style scoped lang="less">
+#evaluate{
+  width: 100%;
+  min-height: 100vh;
+  background: #f5f5f5;
+}
+.header{
+  width: 100%;
+  height: 1.173333rem;
+  background: #303030;
+  padding: 0.36rem 0.4rem;
+  text-align: center;
+  position: relative;
+  a{
+    display: inline-block;
+    width: 150/75rem;
+    height: 100%;
+    position: absolute;
+    left: -30/75rem;
+    top: 0;
+    padding-top: 30/75rem;
+  }
+  .back-pre{
+    display: inline-block;
+    width: 0.24rem;
+    height: 0.426666rem;
+    background: url(../../assets/web/btn_arrow_back2.png) 0 0 no-repeat;
+    background-size: cover;
+  }
+  .title{
+    font-size: 0.48rem;
+    color: #fff;
+  }
+}
+
+.content{
+  width: 100%;
+
+  .one{
+    width: 100%;
+    min-height: 2.933333rem;
+    background: #fff;
+    padding: 0.266666rem 0.4rem;
+    .textarea{
+      border: none;
+      outline: none;
+      width: 100%;
+      min-height: 2.133333rem;
+      resize: none;
+      font-size: 0.373333rem;
+      color: #666;
+      line-height: 0.5rem;
+
+      &::-webkit-scrollbar{
+        display: none;
+      }
+    }
+    .length{
+      font-size: 0.346666rem;
+      color: #999;
+      float: right;
+    }
+  }
+  .two{
+    width: 100%;
+    height: 3.44rem;
+    background: #fff;
+    margin-top: 0.266666rem;
+    padding: 0 0.4rem;
+
+    .caption{
+      font-size: 0.373333rem;
+      padding-top: 0.266666rem;
+      color: #333;
+    }
+    .img-box{
+      padding: 0.4rem 0;
+
+      li:last-child{
+        background: url(../../assets/web/btn_add_image.png) no-repeat 0 0 ;
+        background-size: cover;
+        input{
+          opacity: 0;
+          width: 100%;
+          height: 100%;
+        }
+      }
+      li{
+        width: 2rem;
+        height: 2rem;
+        float: left;
+        margin-right: 0.266666rem;
+        position: relative;
+
+        img{
+          width: 100%;
+          height: 100%;
+        }
+        i.close{
+          display: inline-block;
+          width: 24/75rem;
+          height: 24/75rem;
+          padding: 24/75rem;
+          background: url("../../assets/web/btnDelete4.png") no-repeat center;
+          background-size: 24/75rem 24/75rem;
+          position: absolute;
+          right: 0;
+          top: 0;
+        }
+      }
+    }
+  }
+
+  .submit{
+    width: 9.2rem;
+    height: 1.173333rem;
+    margin: 0.8rem auto;
+    a{
+      display: block;
+      width: 100%;
+      height: 100%;
+      background: #C63535;
+      color: #fff;
+      line-height: 1.173333rem;
+      font-size: 0.4rem;
+      text-align: center;
+      border-radius: 0.133333rem;
+      -webkit-border-radius: 0.133333rem;
+    }
+  }
+
+}
+</style>
