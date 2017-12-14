@@ -77,7 +77,7 @@
         <a v-else @click="tips"><i class="icon7"></i><span>我的钱包</span><i class="more"></i></a>
       </li>
       <li>
-        <router-link v-if="isLogin" to="/invite"><i class="icon8"></i><span>推荐好友</span><i class="code"></i><i
+        <router-link v-if="isLogin && flag" to="/invite"><i class="icon8"></i><span>推荐好友</span><i class="code"></i><i
           class="more"></i></router-link>
         <a v-else @click="tips"><i class="icon8"></i><span>推荐好友</span><i class="code"></i><i class="more"></i></a>
       </li>
@@ -88,6 +88,22 @@
       </li>
     </ul>
 
+    <!--升级弹窗-->
+    <transition name="fade">
+      <div v-if="upgrade" class="up-window-wrap">
+        <div class="up-window-inner">
+          <div class="top">您的等级不够，<br>钻石优客以上才可以推荐好友哦</div>
+          <ul class="bottom clearfix">
+            <li>
+              <router-link to="/grade">如何升级</router-link>
+            </li>
+            <li>
+              <a @click="upgrade = false">我知道了</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </transition>
 
     <my-nav :current="4"></my-nav>
   </div>
@@ -104,7 +120,9 @@
       return {
         isLogin: false,
         me: {},
-        count: true
+        count: true,
+        flag: true,
+        upgrade: false,
       }
     },
     computed: {
@@ -121,11 +139,10 @@
       //获取个人信息
       axios.get("/api/my/index")
         .then((response) => {
-//        console.log(response.data.data)
           if (response.data.result === 1) {
             this.isLogin = true;
             this.me = response.data.data;
-//                console.log(this.me)
+            this.flag = response.data.data.flag;
           } else {
             this.isLogin = false;
             Toast({
@@ -140,19 +157,53 @@
     },
     methods: {
       tips() {
-        Toast({
-          position: "center",
-          message: "请先登录"
-        });
-        setTimeout(() => {
-          this.$router.replace("/login");
-        }, 1000)
+        if (this.isLogin === false) {
+          Toast({
+            position: "center",
+            message: "请先登录"
+          });
+          setTimeout(() => {
+            this.$router.replace("/login");
+          }, 1000)
+        } else {
+          if (this.flag === false) {
+            /*Toast({
+              position: "center",
+              message: "您的等级不够"
+            });*/
+            this.upgrade = true;
+          }
+        }
       }
     }
   }
 </script>
 
 <style scoped lang="less">
+  .fade-enter{
+    opacity: 0;
+    transform: scale(0);
+  }
+  .fade-enter-active{
+    transition: .3s;
+  }
+  .fade-enter-to{
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .fade-leave{
+    opacity: 1;
+    transform: scale(1);
+  }
+  .fade-leave-active{
+    transition: .3s;
+  }
+  .fade-leave-to{
+    opacity: 0;
+    transform: scale(0);
+  }
+
   #me {
     width: 100%;
     height: 100vh;
@@ -316,10 +367,10 @@
           background-size: 100%;
         }
       }
-      .allOrder{
+      .allOrder {
         position: relative;
       }
-      .allOrder:after{
+      .allOrder:after {
         content: "";
         display: block;
         width: 1px;
@@ -341,12 +392,14 @@
       padding: 0 30/75rem;
       border-bottom: 1px solid #f5f5f5;
       a {
-        display: block;
         width: 100%;
         height: 100%;
         padding: 0.4rem 0;
         position: relative;
-
+        color: #333;
+        font-size: 28/75rem;
+        display: flex;
+        align-items: center;
         .icon6 {
           width: 0.32rem;
           height: 0.4rem;
@@ -376,6 +429,7 @@
           background-size: cover;
           position: absolute;
           right: 0.533333rem;
+          margin-top: 3/75rem;
         }
         .more {
           display: inline-block;
@@ -391,12 +445,61 @@
           display: inline-block;
           background-size: cover;
           margin-right: 0.266666rem;
-          vertical-align: middle;
         }
       }
 
       &:nth-of-type(3) {
         border-top: 0.2rem solid #f5f5f5;
+      }
+    }
+  }
+
+  .up-window-wrap{
+    width: 100%;
+    height: 100vh;
+    background: rgba(0,0,0,.5);
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    .up-window-inner{
+      width: 540/75rem;
+      min-height: 250/75rem;
+      background: rgba(242,242,242,.9);
+      border-radius: 10/75rem;
+      -webkit-border-radius: 10/75rem;
+      margin: 502/75rem auto 0;
+      .top{
+        width: 100%;
+        min-height: 160/75rem;
+        border-bottom: 2px solid #dfe0e2;
+        padding: 45/75rem 0;
+        line-height: 40/75rem;
+        text-align: center;
+        color: #333;
+      }
+      .bottom{
+        display: flex;
+        height: 88/75rem;
+        justify-content: space-between;
+        align-items: center;
+        li{
+          width: 50%;
+          height: 100%;
+          float: left;
+          text-align: center;
+          line-height: 88/75rem;
+          &:nth-of-type(1){
+            border-right: 2px solid #dfe0e2;
+          }
+          >a{
+            display: block;
+            width: 100%;
+            height: 100%;
+            line-height: 88/75rem;
+            color: #0076ff;
+          }
+        }
       }
     }
   }

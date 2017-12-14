@@ -48,25 +48,30 @@
         catagorieList: [],
         id: "",
         pageNo: 1,
-        href:false,
+        href: false,
       }
     },
-    watch:{
-      type(newVal,old){
+    watch: {
+      type(newVal, old) {
 
       }
     },
-    mounted(){
+    mounted() {
       this.getIds();
-      this.type = parseInt(this.$route.query.type) || 0;
     },
-    methods:{
-      getIds(){
+    methods: {
+      getIds() {
         con.get("/api/product/marketPage", (response) => {
-          if(response.result === 1) {
-            this.list = response.data.productList;
+          if (response.result === 1) {
             this.catagorieList = response.data.catagorieList;
             this.id = response.data.catagorieList[0].id;
+            if (this.$route.query.type) {
+              this.type = parseInt(this.$route.query.type) || 0;
+              this.id = this.type + 1;
+              this.getShopList();
+            } else {
+              this.list = response.data.productList;
+            }
           } else {
             con.toast(response.msg);
           }
@@ -76,15 +81,15 @@
        * 获取分类列表
        * @param index 分类索引
        */
-      changeType(index){
+      changeType(index) {
         this.type = index;
         this.id = this.catagorieList[index].id;
         this.getShopList();
       },
-      getShopList(){
+      getShopList() {
         con.get("/api/product/marketPage?pageNo=" + this.pageNo + "&fatherCatagory=" + this.id, (response) => {
-          if(response.result === 1) {
-            if(this.pageNo === 1) {
+          if (response.result === 1) {
+            if (this.pageNo === 1) {
               this.list = response.data.productList;
             } else {
               this.list = this.list.concat(response.data.productList);
@@ -105,7 +110,7 @@
     min-height: 100vh;
   }
 
-  .header{
+  .header {
     padding: 16/75rem 30/75rem;
     height: 88/75rem;
     background-color: #303030;
@@ -117,7 +122,7 @@
       -moz-border-radius: 56/75rem;
       border-radius: 56/75rem;
       padding: 0 20/75rem;
-      a{
+      a {
         width: 100%;
         height: 100%;
         display: flex;
@@ -133,7 +138,7 @@
         -webkit-background-size: 100% 100%;
         background-size: 100% 100%;
       }
-      .placeholder{
+      .placeholder {
         color: #999;
         padding-left: 20/75rem;
         font-size: 20/75rem;
@@ -144,36 +149,36 @@
     }
   }
 
-  .shop-info{
+  .shop-info {
     width: 100%;
 
-    .head{
+    .head {
       width: 100%;
       height: 1.066666rem;
       background: #303030;
     }
 
-    .menu{
+    .menu {
       width: 100%;
       height: 100%;
       display: flex;
       justify-content: flex-start;
 
-      li{
+      li {
         width: 3.333333rem;
         height: 100%;
         text-align: center;
         line-height: 1.066666rem;
-        a{
+        a {
           display: block;
           width: 100%;
           height: 100%;
           line-height: 1.066666rem;
         }
 
-        .active{
+        .active {
           color: #f24545;
-          &:after{
+          &:after {
             content: "";
             display: block;
             width: 0.866666rem;
@@ -187,8 +192,7 @@
           }
         }
 
-
-        a{
+        a {
           color: #fff;
           font-size: 0.4rem;
           position: relative;
@@ -196,10 +200,10 @@
       }
     }
 
-    .shop-list{
+    .shop-list {
       width: 100%;
 
-      .item{
+      .item {
         float: left;
         width: 4.933333rem;
         height: 6.493333rem;
@@ -207,18 +211,18 @@
         font-size: 0.373333rem;
         margin-right: 0.133333rem;
         margin-bottom: 0.133333rem;
-        a{
+        a {
           display: block;
           width: 100%;
           height: 100%;
         }
 
-        img{
+        img {
           width: 4.933333rem;
           height: 4.933333rem;
         }
 
-        .text-info{
+        .text-info {
           display: block;
           padding: 0.2rem 0.133333rem;
           color: #666;
@@ -226,14 +230,14 @@
           overflow: hidden;
           white-space: nowrap;
         }
-        .price{
+        .price {
           display: block;
           color: #c63535;
           padding: 0px 0.133333rem;
           font-weight: 600;
         }
       }
-      .item:nth-of-type(even){
+      .item:nth-of-type(even) {
         margin-right: 0;
       }
 

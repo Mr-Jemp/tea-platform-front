@@ -2,9 +2,9 @@
   <div id="my-order">
     <!--头部-->
     <header class="header">
-      <a onclick="history.back()">
+      <router-link to="/me">
         <i class="back-pre"></i>
-      </a>
+      </router-link>
       <span class="title">我的订单</span>
     </header>
 
@@ -40,22 +40,22 @@
             <span class="status">待付款</span>
           </div>
           <!--订单详情-->
-          <router-link :to="'/order_detail?id='+item.id">
+          <router-link :to="'/order_detail?id='+item.id" v-for="order in item.productList">
             <div class="order-detail clearfix">
               <div class="left">
                 <a>
-                  <img :src="item.productList[0].coverImg"/>
+                  <img :src="order.coverImg"/>
                 </a>
               </div>
               <ul class="right">
                 <li>
                   <a class="text-1">{{item.productList[0].name}}</a>
                 </li>
-                <li class="text-2">{{item.productList[0].norms}}</li>
-                <li class="text-3">{{item.productList[0].price}}</li>
+                <li class="text-2">{{order.norms}}</li>
+                <li class="text-3">{{order.price}}</li>
                 <li class="text-4">
-                  <span class="price">{{item.productList[0].preferentialPrice}}</span>
-                  <span class="count">x{{item.productList[0].quantity}}</span>
+                  <span class="price">{{order.preferentialPrice}}</span>
+                  <span class="count">x{{order.quantity}}</span>
                 </li>
               </ul>
             </div>
@@ -78,22 +78,22 @@
             <span class="status">待发货</span>
           </div>
           <!--订单详情-->
-          <router-link :to="'/order_detail?id='+item.id">
+          <router-link :to="'/order_detail?id='+item.id" v-for="order in item.productList">
             <div class="order-detail clearfix">
               <div class="left">
                 <a>
-                  <img :src="item.productList[0].coverImg"/>
+                  <img :src="order.coverImg"/>
                 </a>
               </div>
               <ul class="right">
                 <li>
                   <a class="text-1">{{item.productList[0].name}}</a>
                 </li>
-                <li class="text-2">{{item.productList[0].norms}}</li>
-                <li class="text-3">{{item.productList[0].price}}</li>
+                <li class="text-2">{{order.norms}}</li>
+                <li class="text-3">{{order.price}}</li>
                 <li class="text-4">
-                  <span class="price">{{item.productList[0].preferentialPrice}}</span>
-                  <span class="count">x{{item.productList[0].quantity}}</span>
+                  <span class="price">{{order.preferentialPrice}}</span>
+                  <span class="count">x{{order.quantity}}</span>
                 </li>
               </ul>
             </div>
@@ -115,22 +115,22 @@
             <span class="status">已发货</span>
           </div>
           <!--订单详情-->
-          <router-link :to="'/order_detail?id='+item.id">
+          <router-link :to="'/order_detail?id='+item.id" v-for="order in item.productList">
             <div class="order-detail clearfix">
               <div class="left">
                 <a>
-                  <img :src="item.productList[0].coverImg"/>
+                  <img :src="order.coverImg"/>
                 </a>
               </div>
               <ul class="right">
                 <li>
                   <a class="text-1">{{item.productList[0].name}}</a>
                 </li>
-                <li class="text-2">{{item.productList[0].norms}}</li>
-                <li class="text-3">{{item.productList[0].price}}</li>
+                <li class="text-2">{{order.norms}}</li>
+                <li class="text-3">{{order.price}}</li>
                 <li class="text-4">
-                  <span class="price">{{item.productList[0].preferentialPrice}}</span>
-                  <span class="count">x{{item.productList[0].quantity}}</span>
+                  <span class="price">{{order.preferentialPrice}}</span>
+                  <span class="count">x{{order.quantity}}</span>
                 </li>
               </ul>
             </div>
@@ -152,37 +152,38 @@
           <!--订单号-->
           <div class="order-num">
             <span class="id">订单号：{{item.outTradeNo}}</span>
-            <span class="status">已发货</span>
+            <span class="status">已收货</span>
           </div>
           <!--订单详情-->
-          <router-link :to="'/order_detail?id='+item.id">
-            <div class="order-detail clearfix">
-              <div class="left">
-                <a>
-                  <img :src="item.productList[0].coverImg"/>
-                </a>
+          <div v-for="(order, index) in item.productList" class="inner evaluate">
+            <router-link :to="'/order_detail?id='+item.id">
+              <div class="order-detail clearfix">
+                <div class="left">
+                  <a>
+                    <img :src="order.coverImg"/>
+                  </a>
+                </div>
+                <ul class="right">
+                  <li>
+                    <a class="text-1">{{item.productList[0].name}}</a>
+                  </li>
+                  <li class="text-2">{{order.norms}}</li>
+                  <li class="text-3">{{order.price}}</li>
+                  <li class="text-4">
+                    <span class="price">{{order.preferentialPrice}}</span>
+                    <span class="count">x{{order.quantity}}</span>
+                  </li>
+                </ul>
               </div>
-              <ul class="right">
-                <li>
-                  <a class="text-1">{{item.productList[0].name}}</a>
-                </li>
-                <li class="text-2">{{item.productList[0].norms}}</li>
-                <li class="text-3">{{item.productList[0].price}}</li>
-                <li class="text-4">
-                  <span class="price">{{item.productList[0].preferentialPrice}}</span>
-                  <span class="count">x{{item.productList[0].quantity}}</span>
-                </li>
-              </ul>
+            </router-link>
+            <!--合计-->
+            <div class="total" v-if="index == item.productList.length - 1">
+              共{{item.quantity}}件商品 合计：<span>&yen;{{item.payAmount + item.expressFee}}</span>（含运费￥{{item.expressFee}}.00）
             </div>
-          </router-link>
-          <!--合计-->
-          <div class="total">
-            共{{item.quantity}}件商品 合计：<span>&yen;{{item.payAmount + item.expressFee}}</span>（含运费￥{{item.expressFee}}.00）
-          </div>
-          <!--操作-->
-          <div class="order-operate">
-            <span @click="requestReturn(item.id)" class="btn">申请退货</span>
-            <span @click="goEvaluate(item.productList[index].id)" class="btn">评价</span>
+            <!--操作-->
+            <div class="order-operate">
+              <span @click="goEvaluate(order.id)" class="btn">评价</span>
+            </div>
           </div>
         </div>
         <!--交易关闭-->
@@ -193,22 +194,22 @@
             <span class="status">交易关闭</span>
           </div>
           <!--订单详情-->
-          <router-link :to="'/order_detail?id='+item.id">
+          <router-link :to="'/order_detail?id='+item.id" v-for="order in item.productList">
             <div class="order-detail clearfix">
               <div class="left">
                 <a>
-                  <img :src="item.productList[0].coverImg"/>
+                  <img :src="order.coverImg"/>
                 </a>
               </div>
               <ul class="right">
                 <li>
                   <a class="text-1">{{item.productList[0].name}}</a>
                 </li>
-                <li class="text-2">{{item.productList[0].norms}}</li>
-                <li class="text-3">{{item.productList[0].price}}</li>
+                <li class="text-2">{{order.norms}}</li>
+                <li class="text-3">{{order.price}}</li>
                 <li class="text-4">
-                  <span class="price">{{item.productList[0].preferentialPrice}}</span>
-                  <span class="count">x{{item.productList[0].quantity}}</span>
+                  <span class="price">{{order.preferentialPrice}}</span>
+                  <span class="count">x{{order.quantity}}</span>
                 </li>
               </ul>
             </div>
@@ -230,22 +231,22 @@
             <span class="status">申请退货</span>
           </div>
           <!--订单详情-->
-          <router-link :to="'/order_detail?id='+item.id">
+          <router-link :to="'/order_detail?id='+item.id" v-for="order in item.productList">
             <div class="order-detail clearfix">
               <div class="left">
                 <a>
-                  <img :src="item.productList[0].coverImg"/>
+                  <img :src="order.coverImg"/>
                 </a>
               </div>
               <ul class="right">
                 <li>
                   <a class="text-1">{{item.productList[0].name}}</a>
                 </li>
-                <li class="text-2">{{item.productList[0].norms}}</li>
-                <li class="text-3">{{item.productList[0].price}}</li>
+                <li class="text-2">{{order.norms}}</li>
+                <li class="text-3">{{order.price}}</li>
                 <li class="text-4">
-                  <span class="price">{{item.productList[0].preferentialPrice}}</span>
-                  <span class="count">x{{item.productList[0].quantity}}</span>
+                  <span class="price">{{order.preferentialPrice}}</span>
+                  <span class="count">x{{order.quantity}}</span>
                 </li>
               </ul>
             </div>
@@ -267,22 +268,22 @@
             <span class="status">交易完成</span>
           </div>
           <!--订单详情-->
-          <router-link :to="'/order_detail?id='+item.id">
+          <router-link :to="'/order_detail?id='+item.id" v-for="order in item.productList">
             <div class="order-detail clearfix">
               <div class="left">
                 <a>
-                  <img :src="item.productList[0].coverImg"/>
+                  <img :src="order.coverImg"/>
                 </a>
               </div>
               <ul class="right">
                 <li>
                   <a class="text-1">{{item.productList[0].name}}</a>
                 </li>
-                <li class="text-2">{{item.productList[0].norms}}</li>
-                <li class="text-3">{{item.productList[0].price}}</li>
+                <li class="text-2">{{order.norms}}</li>
+                <li class="text-3">{{order.price}}</li>
                 <li class="text-4">
-                  <span class="price">{{item.productList[0].preferentialPrice}}</span>
-                  <span class="count">x{{item.productList[0].quantity}}</span>
+                  <span class="price">{{order.preferentialPrice}}</span>
+                  <span class="count">x{{order.quantity}}</span>
                 </li>
               </ul>
             </div>
@@ -298,7 +299,7 @@
         </div>
       </div>
 
-    <div class="no-data" v-show="anyOrders == false">暂无数据</div>
+      <div class="no-data" v-show="anyOrders == false">暂无数据</div>
     </section>
 
     <!--待付款列表-->
@@ -310,22 +311,22 @@
           <span class="status">待付款</span>
         </div>
         <!--订单详情-->
-        <router-link :to="'/order_detail?id='+item.id">
+        <router-link :to="'/order_detail?id='+item.id" v-for="order in item.productList">
           <div class="order-detail clearfix">
             <div class="left">
               <a>
-                <img :src="item.productList[0].coverImg"/>
+                <img :src="order.coverImg"/>
               </a>
             </div>
             <ul class="right">
               <li>
                 <a class="text-1">{{item.productList[0].name}}</a>
               </li>
-              <li class="text-2">{{item.productList[0].norms}}</li>
-              <li class="text-3">{{item.productList[0].price}}</li>
+              <li class="text-2">{{order.norms}}</li>
+              <li class="text-3">{{order.price}}</li>
               <li class="text-4">
-                <span class="price">{{item.productList[0].preferentialPrice}}</span>
-                <span class="count">x{{item.productList[0].quantity}}</span>
+                <span class="price">{{order.preferentialPrice}}</span>
+                <span class="count">x{{order.quantity}}</span>
               </li>
             </ul>
           </div>
@@ -349,25 +350,26 @@
         <!--订单号-->
         <div class="order-num">
           <span class="id">订单号：{{item.outTradeNo}}</span>
-          <span class="status">已发货</span>
+          <span v-if="item.payStatus === 1" class="status">待发货</span>
+          <span v-else-if="item.payStatus === 2" class="status">已发货</span>
         </div>
         <!--订单详情-->
-        <router-link :to="'/order_detail?id='+item.id">
+        <router-link :to="'/order_detail?id='+item.id" v-for="order in item.productList">
           <div class="order-detail clearfix">
             <div class="left">
               <a>
-                <img :src="item.productList[0].coverImg"/>
+                <img :src="order.coverImg"/>
               </a>
             </div>
             <ul class="right">
               <li>
                 <a class="text-1">{{item.productList[0].name}}</a>
               </li>
-              <li class="text-2">{{item.productList[0].norms}}</li>
-              <li class="text-3">{{item.productList[0].price}}</li>
+              <li class="text-2">{{order.norms}}</li>
+              <li class="text-3">{{order.price}}</li>
               <li class="text-4">
-                <span class="price">{{item.productList[0].preferentialPrice}}</span>
-                <span class="count">x{{item.productList[0].quantity}}</span>
+                <span class="price">{{order.preferentialPrice}}</span>
+                <span class="count">x{{order.quantity}}</span>
               </li>
             </ul>
           </div>
@@ -377,7 +379,10 @@
           共{{item.quantity}}件商品 合计：<span>&yen;{{item.payAmount + item.expressFee}}</span>（含运费￥{{item.expressFee}}.00）
         </div>
         <!--操作-->
-        <div class="order-operate">
+        <div v-if="item.payStatus === 1" class="order-operate">
+          <span @click="requestReturn(item.id)" class="btn">申请退货</span>
+        </div>
+        <div v-else-if="item.payStatus === 2" class="order-operate">
           <span @click="extendTheReceiving(item.id)" class="btn">延长收货</span>
           <span @click="requestReturn(item.id)" class="btn">申请退货</span>
           <span @click="seaLogistics(item.id)" class="btn">查看物流</span>
@@ -388,41 +393,41 @@
     </section>
 
     <!--待评价列表-->
-    <section v-show="type == 4" class="order-list">
+    <section v-show="type == 4" class="order-list evaluate">
       <div v-for="(item,index) in evaluateList" v-show="anyOrders" class="wrap">
-        <!--订单号-->
         <div class="order-num">
           <span class="id">订单号：{{item.outTradeNo}}</span>
           <span class="status">交易完成</span>
         </div>
-        <!--订单详情-->
-        <router-link :to="'/order_detail?id='+item.id">
-          <div class="order-detail clearfix">
-            <div class="left">
-              <a>
-                <img :src="item.productList[0].coverImg"/>
-              </a>
+        <div v-for="(order, index) in item.productList" class="inner">
+          <div v-if="order">
+            <router-link :to="'/order_detail?id='+item.id">
+              <div class="order-detail clearfix">
+                <div class="left">
+                  <a>
+                    <img :src="order.coverImg"/>
+                  </a>
+                </div>
+                <ul class="right">
+                  <li>
+                    <a class="text-1">{{order.name}}</a>
+                  </li>
+                  <li class="text-2">{{order.norms}}</li>
+                  <li class="text-3">{{order.price}}</li>
+                  <li class="text-4">
+                    <span class="price">{{order.preferentialPrice}}</span>
+                    <span class="count">x{{order.quantity}}</span>
+                  </li>
+                </ul>
+              </div>
+            </router-link>
+            <div class="total" v-if="index == item.productList.length - 1">
+              共{{item.quantity}}件商品 合计：<span>&yen;{{item.payAmount + item.expressFee}}</span>（含运费￥{{item.expressFee}}.00）
             </div>
-            <ul class="right">
-              <li>
-                <a class="text-1">{{item.productList[0].name}}</a>
-              </li>
-              <li class="text-2">{{item.productList[0].norms}}</li>
-              <li class="text-3">{{item.productList[0].price}}</li>
-              <li class="text-4">
-                <span class="price">{{item.productList[0].preferentialPrice}}</span>
-                <span class="count">x{{item.productList[0].quantity}}</span>
-              </li>
-            </ul>
+            <div v-if="order.status == 0" class="order-operate">
+              <span @click="goEvaluate(order.id)" class="btn">评价</span>
+            </div>
           </div>
-        </router-link>
-        <!--合计-->
-        <div class="total">
-          共{{item.quantity}}件商品 合计：<span>&yen;{{item.payAmount + item.expressFee}}</span>（含运费￥{{item.expressFee}}.00）
-        </div>
-        <!--操作-->
-        <div class="order-operate">
-          <span @click="goEvaluate(item.productList[index].id)" class="btn">评价</span>
         </div>
       </div>
       <div class="no-data" v-show="anyOrders == false">暂无数据</div>
@@ -437,22 +442,22 @@
           <span class="status">申请退货</span>
         </div>
         <!--订单详情-->
-        <router-link :to="'/order_detail?id='+item.id">
+        <router-link :to="'/order_detail?id='+item.id" v-for="order in item.productList">
           <div class="order-detail clearfix">
             <div class="left">
               <a>
-                <img :src="item.productList[0].coverImg"/>
+                <img :src="order.coverImg"/>
               </a>
             </div>
             <ul class="right">
               <li>
                 <a class="text-1">{{item.productList[0].name}}</a>
               </li>
-              <li class="text-2">{{item.productList[0].norms}}</li>
-              <li class="text-3">{{item.productList[0].price}}</li>
+              <li class="text-2">{{order.norms}}</li>
+              <li class="text-3">{{order.price}}</li>
               <li class="text-4">
-                <span class="price">{{item.productList[0].preferentialPrice}}</span>
-                <span class="count">x{{item.productList[0].quantity}}</span>
+                <span class="price">{{order.preferentialPrice}}</span>
+                <span class="count">x{{order.quantity}}</span>
               </li>
             </ul>
           </div>
@@ -470,44 +475,32 @@
     </section>
 
     <!--弹窗-->
-    <div class="popup" style="display: none;">
-      <!--确认弹窗-->
-      <!--<div class="confirm" style="display: none;">-->
-        <!--&lt;!&ndash;提示文字&ndash;&gt;-->
-        <!--<div class="tips">-->
-          <!--&lt;!&ndash;取消订单&ndash;&gt;-->
-          <!--<span class="cancel-order">确定要取消订单吗?</span>-->
-          <!--&lt;!&ndash;确认收货&ndash;&gt;-->
-          <!--<span class="receipt" style="display: none;">确认收获后无法退货,<br/>是否确认收货？</span>-->
-        <!--</div>-->
-
-        <!--&lt;!&ndash;按钮&ndash;&gt;-->
-        <!--<div class="btn">-->
-          <!--<div class="cancel" title="false">取消</div>-->
-          <!--<div class="ensure" title="true">确定</div>-->
-        <!--</div>-->
-      <!--</div>-->
-
-      <!--升级弹窗-->
-      <div class="upgrade">
-        <div class="one">
-          <img src="../../assets/web/icon_order_list_medal.png"/>
-          <p class="hint">恭喜您升级了</p>
-        </div>
-        <div class="two">
-          <div class="now">
-            <h4 class="title">当前等级权益：</h4>
-            <p class="item">1、购买普通商品可享受9折优惠；</p>
-            <p class="item">2、可以邀请好友，好友购买商品后可获得佣金收益。</p>
+    <transition name="up-win">
+      <div class="popup" v-if="pay == true">
+        <!--升级弹窗-->
+        <div class="upgrade">
+          <div class="one">
+            <img src="../../assets/web/icon_order_list_medal.png"/>
+            <p class="hint">恭喜您升级了</p>
           </div>
-          <div class="next">
-            <h4 class="title">下一等级权益：</h4>
-            <p class="item">1、购买普通商品可享受8折优惠；</p>
-            <p class="item">2、可以邀请好友，好友购买商品后可获得佣金收益。</p>
+          <div class="two">
+            <div class="now">
+              <h4 class="title">当前等级权益：</h4>
+              <!--<p class="item">1、购买普通商品可享受{{discount}}折优惠；</p>
+              <p class="item">2、可以邀请好友，好友购买商品后可获得佣金收益。</p>-->
+              <div v-html="thisRightsAndInterests">{{thisRightsAndInterests}}</div>
+            </div>
+            <div class="next">
+              <h4 class="title">下一等级权益：</h4>
+              <!--<p class="item">1、购买普通商品可享受{{nextDiscount}}折优惠；</p>
+              <p class="item">2、可以邀请好友，好友购买商品后可获得佣金收益。</p>-->
+              <div v-html="nextRightsAndInterests">{{nextRightsAndInterests}}</div>
+            </div>
           </div>
         </div>
+        <div @click="closeWindow" class="close-window"></div>
       </div>
-    </div>
+    </transition>
 
   </div>
 </template>
@@ -526,7 +519,10 @@
         evaluateList: [],//待评价
         afterList: [],//售后
         anyOrders: false,
-        arr: []
+        arr: [],
+        pay: false,
+        thisRightsAndInterests: "",
+        nextRightsAndInterests: "",
       }
     },
     mounted() {
@@ -569,7 +565,7 @@
         }
       },
       requestOrder(payStatus, orderType) {
-        if(payStatus === null){
+        if (payStatus === null) {
           con.get("/api/order/list?rows=20", (response) => {
             if (response.result === 1) {
               this.hasOrder(response.data, orderType);
@@ -577,7 +573,7 @@
               con.toast(response.msg);
             }
           });
-        }else{
+        } else {
           con.get("/api/order/list?payStatus=" + payStatus, (response) => {
             if (response.result === 1) {
               this.hasOrder(response.data, orderType);
@@ -628,7 +624,7 @@
        * @param id  当前操作的订单id
        */
       requestReturn(id) {
-        this.$router.push("/return?id="+id);
+        this.$router.push("/return?id=" + id);
       },
       /**
        * 查看物流
@@ -642,13 +638,14 @@
        * @param id  当前操作的订单id
        */
       confirmReceipt(id) {
-        this.messageBox(id, "确认收货", "确认收货后无法撤销，您确定吗?", "/api/order/confirm", "操作成功");
+        this.messageBox(id, "确认收货", "确认收货后无法退货，是否确认收货?", "/api/order/confirm", "操作成功");
       },
       /**
        * 去评价
        * @param id  当前操作的订单id
        */
       goEvaluate(id) {
+
         this.$router.push("/evaluate?id=" + id);
       },
       /**
@@ -658,7 +655,7 @@
       cancelAppli(id) {
         //todo 取消申请退货
       },
-      messageBox(id, title, msg, url, toast,type) {
+      messageBox(id, title, msg, url, toast, type) {
         MessageBox({
           title: title,
           message: msg,
@@ -669,8 +666,14 @@
               "id": id,
             }, response => {
               if (response.result === 1) {
-                con.toast(toast);
-                this.getOrderList(this.type);
+                if (Object.keys(response.data).length === 0) {//判断对象是否为空
+                  con.toast(toast);
+                  this.getOrderList(this.type);
+                } else {//用户升级才会返回数据
+                  this.pay = true;
+                  this.thisRightsAndInterests = response.data.thisRightsAndInterests;
+                  this.nextRightsAndInterests = response.data.nextRightsAndInterests;
+                }
               } else {
                 con.toast(response.msg);
               }
@@ -678,11 +681,38 @@
           }
         });
       },
+      closeWindow() {
+        this.pay = false;
+      }
     }
   }
 </script>
 
 <style scoped lang="less">
+  .up-win-enter {
+    opacity: 0;
+  }
+
+  .up-win-enter-active {
+    transition: .3s;
+  }
+
+  .up-win-enter-to {
+    opacity: 1;
+  }
+
+  .up-win-leave {
+    opacity: 1;
+  }
+
+  .up-win-leave-active {
+    transition: .3s;
+  }
+
+  .up-win-leave-to {
+    opacity: 0;
+  }
+
   #my-order {
     width: 100%;
     min-height: 100vh;
@@ -740,11 +770,25 @@
     color: #333;
   }
 
+  .evaluate {
+    .order-detail {
+      margin-bottom: 0 !important;
+    }
+  }
+
   .wrap {
     width: 100%;
     min-height: 5.733333rem;
     background: #fff;
     margin: 0.213333rem 0;
+
+    .inner {
+      border-bottom: 1px solid #ddd;
+      margin-bottom: .3rem;
+      &:last-child {
+        border-bottom: none;
+      }
+    }
 
     .order-num {
       width: 100%;
@@ -772,6 +816,7 @@
       min-height: 2.5rem;
       background: #fcfcfc;
       padding: 0 0.4rem;
+      margin-bottom: .25rem;
 
       .left {
         float: left;
@@ -884,46 +929,6 @@
     background: rgba(0, 0, 0, .5);
     z-index: 10;
 
-    .confirm {
-      width: 7.2rem;
-      min-height: 2.773333rem;
-      background: rgba(242, 242, 242, .9);
-      margin: 7.333333rem auto 0;
-      border-radius: 0.2rem;
-      -webkit-border-radius: 0.2rem;
-      .tips {
-        width: 100%;
-        min-height: 1.573333rem;
-        border-bottom: 2px solid #dfe0e2;
-        padding: 0.6rem 1.7rem;
-        text-align: center;
-        font-size: 0.4rem;
-        color: #000;
-        font-weight: 500;
-      }
-      .btn {
-        width: 100%;
-        height: 1.173333rem;
-        display: flex;
-        display: -webkit-flex;
-        align-items: center;
-        -webkit-align-items: center;
-        justify-content: space-between;
-        -webkit-justify-content: space-between;
-        > div {
-          width: 50%;
-          height: 100%;
-          line-height: 1.173333rem;
-          text-align: center;
-          font-size: 0.4rem;
-          color: #0076ff;
-        }
-        .cancel {
-          border-right: 2px solid #dfe0e2;
-        }
-      }
-    }
-
     .upgrade {
       width: 5.64rem;
       min-height: 6.666666rem;
@@ -970,6 +975,15 @@
         }
       }
 
+    }
+    .close-window {
+      width: 52/75rem;
+      height: 52/75rem;
+      background: url("../../assets/web/btn_close2.png") 0 0 no-repeat;
+      background-size: cover;
+      border-radius: 50%;
+      -webkit-border-radius: 50%;
+      margin: 60/75rem auto;
     }
 
   }

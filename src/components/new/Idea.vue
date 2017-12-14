@@ -57,6 +57,7 @@
         textarea: "",
         imgLength:3,
         arr:[],
+        imgName:[],
         userImg:"",
         contact:"",
         hasGetPhone:false,
@@ -126,7 +127,8 @@
               "data" : img
             },(response) => {
               self.arr.push(response.data.src);
-              self.userImg = self.arr.join(";");
+              self.imgName.push(response.data.name);
+              self.userImg = self.imgName.join(";");
               if(e.target.value){//清空input value值
                 e.target.value = "";
               }

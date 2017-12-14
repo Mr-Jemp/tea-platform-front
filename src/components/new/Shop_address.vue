@@ -185,7 +185,6 @@
        * 获取用户信息跳转确认订单页
        */
       getInfo(item){
-//        console.log(item)
         sessionStorage.removeItem("info");
         this.$router.go(-1);
         sessionStorage.setItem("info",JSON.stringify({

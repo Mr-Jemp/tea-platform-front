@@ -14,7 +14,9 @@
       <div class="swiper-wrapper">
         <div class="swiper-slide" v-for="item in bannerList">
           <a v-if="item.type == 1" :href="item.url"><img :src="item.coverImage" :title="item.name" :alt="item.name"></a>
-          <router-link v-else-if="item.type == 2" :to="'/details?id='+item.url"><img :src="item.coverImage" :title="item.name" :alt="item.name"></router-link>
+          <router-link v-else-if="item.type == 2" :to="'/details?id='+item.url"><img :src="item.coverImage"
+                                                                                     :title="item.name"
+                                                                                     :alt="item.name"></router-link>
         </div>
       </div>
       <div class="swiper-pagination"></div>
@@ -54,7 +56,7 @@
           </router-link>
         </li>
         <li>
-          <router-link to="/details">
+          <router-link :to="'/details?id='+newId">
             <i class="icon2"></i><span>新品上市</span>
           </router-link>
         </li>
@@ -101,7 +103,7 @@
         fathterCatagory: [],
         newId: "",
         orderrolls: [],
-        hot: {}
+        hot: {},
       }
     },
     mounted() {
@@ -143,7 +145,7 @@
             self.newId = response.data.newId;
             self.orderrolls = response.data.orderrolls;
             self.hot = response.data.hot;
-            setTimeout(()=>{
+            setTimeout(() => {
               swiper1.update();
               swiper2.update();
             }, 200);
@@ -175,7 +177,7 @@
       -webkit-border-radius: 56/75rem;
       -moz-border-radius: 56/75rem;
       border-radius: 56/75rem;
-      a{
+      a {
         display: block;
         width: 100%;
         height: 100%;
@@ -191,7 +193,7 @@
         -webkit-background-size: 100% 100%;
         background-size: 100% 100%;
       }
-      .placeholder{
+      .placeholder {
         color: #999;
         padding-left: 20/75rem;
         font-size: 24/75rem;

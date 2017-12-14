@@ -59,76 +59,94 @@
   export default {
     data() {
       return {
-        name:"",
-        bankNum:"",
-        isBankNum:false,
+        name: "",
+        bankNum: "",
+        isBankNum: false,
         getMoney: "",
-        disabled:false,
-        bankList:["中国农业银行","中国建设银行","中国工商银行","招商银行","中国银行","中国邮政储蓄银行","交通银行","中国民生银行"],
-        myBalance:"",
-        cashAmount:"",
+        disabled: false,
+        bankList: ["中国农业银行", "中国建设银行", "中国工商银行", "招商银行", "中国银行", "中国邮政储蓄银行", "交通银行", "中国民生银行"],
+        myBalance: "",
+        cashAmount: "",
       }
     },
-    mounted(){
+    mounted() {
       this.selectDefault();
       this.getMyBalance();
     },
-    watch:{
-      bankNum(val){
+    watch: {
+      bankNum(val) {
         this.isBankNum = /^(\d{16}|\d{19})$/.test(val);
       },
-      getMoney(val){
-        if(parseInt(val) > this.myBalance){
+      getMoney(val) {
+        if (parseInt(val) > this.myBalance) {
           con.toast("余额不足")
-        }else{
+        } else {
           con.toast("当前可提现余额为：" + this.myBalance + "元");
           this.cashAmount = val;
         }
       }
     },
-    methods:{
+    methods: {
       /**
        *  清空select的初始值
        */
-      selectDefault(){
+      selectDefault() {
         $(".select-bank")[0].selectedIndex = -1;
       },
       /**
        *  获取可提现的余额数
        */
-      getMyBalance(){
-        this.myBalance = window.location.href.split("?")[1].split("=")[1];
+      getMyBalance() {
+        if (location.href.split("?") !== -1) {
+          this.myBalance = window.location.href.split("?")[1].split("=")[1];
+        }
       },
       /**
        * 确认提交
        */
-      verifyFn(){
+      verifyFn() {
         let selectVal = $('#select-bank option:selected').text();//获取选中的option的文本值
-        if(this.isBankNum && this.name && this.cashAmount && selectVal){
-          if(this.disabled == false){
-            con.post("/api/cash/apply",{
-              "bankNumber":this.bankNum,
-              "bankName":selectVal,
-              "bankBelong":this.name,
-              "cashAmount":this.cashAmount
-            },(response) => {
-              if(response.result === 1){
-                con.toast("提现成功");
-                setTimeout(()=>{
-                  this.disabled = true;
-                },100)
-              }else{
-                con.toast(response.msg);
+        if (this.name) {
+          if (selectVal) {
+            if (this.bankNum) {
+              if (this.isBankNum) {
+                if (this.cashAmount) {
+                  if (this.disabled === false) {
+                    con.post("/api/cash/apply", {
+                      "bankNumber": this.bankNum,
+                      "bankName": selectVal,
+                      "bankBelong": this.name,
+                      "cashAmount": this.cashAmount
+                    }, (response) => {
+                      if (response.result === 1) {
+                        con.toast("提现成功");
+                        setTimeout(() => {
+                          this.disabled = true;
+                        }, 100)
+                      } else {
+                        con.toast(response.msg);
+                      }
+                    })
+                  } else {
+                    con.toast("请勿重复提交,30秒后再试");
+                    setTimeout(() => {
+                      this.disabled = false;
+                    }, 1000 * 30)
+                  }
+                } else {
+                  con.toast("请输入提现金额");
+                }
+              } else {
+                con.toast("银行卡号有误，请检查后重新填写");
               }
-            })
-          }else{
-            con.toast("请勿重复提交,30秒后再试");
-            setTimeout(()=>{
-              this.disabled = false;
-            },1000*30)
+            } else {
+              con.toast("请填写银行卡号");
+            }
+          } else {
+            con.toast("请选择银行");
           }
-        }else{
-          con.toast("请填写正确的信息");
+        } else {
+          con.toast("请填写持卡人姓名");
         }
       }
     },
@@ -157,7 +175,9 @@
       line-height: 1.066666rem;
       border-bottom: 1px solid #f5f5f5;
       font-size: 0.373333rem;
-      position: relative;
+      display: flex;
+      align-items: center;
+      /*position: relative;*/
 
       .selectBox {
         margin-left: 0.746666rem;
@@ -171,11 +191,12 @@
     .left {
       color: #333;
       display: inline-block;
-      width: 1.533333rem;
+      width: 1.633333rem;
+      white-space: nowrap;
     }
     .center {
       color: #333;
-      margin-left: 0.746666rem;
+      margin-left: 0.7rem;
     }
     .right {
       position: absolute;

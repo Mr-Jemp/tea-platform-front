@@ -91,7 +91,6 @@
         con.get("/api/my/invitationCode",(response) => {
           if(response.result === 1){
             this.getMyCode = response.data;
-            console.log(response.data)
           }else{
             con.toast(response.msg)
           }

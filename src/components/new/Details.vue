@@ -112,10 +112,10 @@
     <div class="foot-nav">
       <ul>
         <li>
-          <router-link to="">
+          <a :href="'tel:'+serverPhone">
             <i class="icon-server"></i>
             <span class="contact-ser">联系客服</span>
-          </router-link>
+          </a>
         </li>
         <li>
           <a @click="buy">加入购物车</a>
@@ -176,49 +176,34 @@
               </div>
               <ul class="shop-info">
                 <li class="price">&yen;{{shopInfo.preferentialPrice}}</li>
-                <li class="repertory">库存：{{this.quantityShow}}件</li>
-                <li id="select" class="select">请选择 规格</li>
+                <li class="repertory">库存：{{quantityShow}}件</li>
+                <li v-if="ifClothes == false" id="select" class="select">请选择 规格</li>
+                <li v-if="ifClothes == true" id="select" class="select">请选择 规格</li>
               </ul>
             </div>
 
             <div class="two">
-              <!--茶叶-->
-              <!--<div class="tea">-->
-              <!--<div class="caption">规格</div>-->
-              <!--<ul class="sort-list clearfix">-->
-              <!--<li>乐品乐茶碧螺春</li>-->
-              <!--</ul>-->
-              <!--</div>-->
 
-              <!--&lt;!&ndash;茶具&ndash;&gt;-->
-              <!--<div class="tea-things">-->
-              <!--<div class="caption">颜色分类</div>-->
-              <!--<ul class="sort-list clearfix">-->
-              <!--<li class="active">红紫砂咖啡色</li>-->
-              <!--<li>七彩咖啡色祥云</li>-->
-              <!--<li>孔雀绿咖啡色祥云</li>-->
-              <!--<li>孔雀绿立体盘龙</li>-->
-              <!--<li>孔雀绿立体盘龙</li>-->
-              <!--<li>七彩咖啡色祥云</li>-->
-              <!--<li>孔雀绿咖啡色祥云</li>-->
-              <!--<li>孔雀绿立体盘龙</li>-->
-              <!--</ul>-->
-              <!--</div>-->
-
-              <!--服装-->
-              <div class="clothing">
+              <div class="box">
                 <div class="caption">分类</div>
-                <ul class="sort-list clearfix">
-                  <li v-for="sort in firstList" @click="getSecondList($event,sort.secondType)">{{sort.secondType}}</li>
+                <ul class="sort-list second clearfix">
+                  <li v-if="ifClothes == false" v-for="sort in firstList"
+                      @click="getSecondList($event,sort.secondType)">{{sort.secondType}}
+                  </li>
+                  <li :class="{'is-check': sort.isCheck,'disable':sort.isCheck==false}" v-if="ifClothes"
+                      v-for="sort in firstList"
+                      @click="getSecondList($event,sort.firstType,sort.id)">
+                    {{sort.firstType}}
+                  </li>
                 </ul>
-                <div v-if="false" class="three-list">
+                <div v-if="ifClothes" class="three-list">
                   <div class="caption margin-top">尺码</div>
                   <ul class="sort-list clearfix">
-                    <li class="active">S</li>
-                    <li>M</li>
-                    <li>L</li>
-                    <li>XL</li>
-                    <li>XXL</li>
+                    <li :class="{'is-check': size.isCheck,'disable':size.isCheck==false}"
+                        @click="getSize($event,index,size.secondType)"
+                        v-for="(size,index) in clothesList">
+                      {{size.secondType}}
+                    </li>
                   </ul>
                 </div>
               </div>
@@ -254,7 +239,6 @@
   import 'swiper/dist/css/swiper.min.css'
   import {con} from "../../assets/js/common"
   import $ from "jquery"
-
 
   export default {
     name: 'details',
@@ -297,23 +281,19 @@
         detail: false,
         evaluate: false,
         pid: "",
+        ifClothes: false,
+        clothesList: [],
+        temp: [],
+        serverPhone: "",
       }
     },
     watch: {
-      firstStand(newVal, oldVal) {
-        if (newVal !== oldVal) {
-          $("#select").html("已选择 " + newVal);
-        }
-      },
-      secondStand(newVal, oldVal) {
-        if (newVal !== oldVal) {
-          $("#select").html("已选择 " + this.firstStand + " " + newVal);
-        }
-      }
+
     },
     mounted() {
       this.getLoginStatus();
       this.getShopDetail();
+      this.contactService();
     },
     methods: {
       getLoginStatus() {
@@ -377,7 +357,6 @@
           this.pid = id;
           con.get("/api/product/detail?id=" + id, (response) => {
             if (response.result === 1) {
-//              console.log(response.data)
               this.details = response.data.detail;
               this.imageList = response.data.imageList;
               this.shopInfo.name = response.data.name;
@@ -387,7 +366,22 @@
               this.shopInfo.discount = response.data.expressFee.discount;
               this.shopInfo.feeReachFree = response.data.expressFee.feeReachFree;
               this.shopInfo.coverImg = response.data.coverImg;
-              this.firstList = response.data.allSecondTypes;
+              if (response.data.allFirstTypes.length === 0) {//不是衣服
+                this.firstList = response.data.allSecondTypes;
+                this.ifClothes = false;
+              } else {
+                response.data.allFirstTypes.map(function (obj) {
+                  obj.isCheck = true;
+                  return obj;
+                });
+                response.data.allSecondTypes.map(function (obj) {
+                  obj.isCheck = true;
+                  return obj
+                });
+                this.firstList = response.data.allFirstTypes;
+                this.clothesList = response.data.allSecondTypes;
+                this.ifClothes = true;
+              }
               setTimeout(() => {
                 this.getSwiper();
               }, 200);
@@ -410,28 +404,72 @@
       },
       /**
        * 获取二级列表
+       * @param e
        * @param secondType
+       * @param secondId
        */
-      getSecondList(e, secondType) {
-        this.firstStand = secondType;
-        $(e.target).addClass("active").siblings().removeClass("active");
-        let url = window.location.href;
-        if (url.indexOf("?") !== -1) {
-          let id = url.split("?")[1].split("=")[1];
-          con.get("/api/product/standard?id=" + id + "&secondType=" + secondType, (response) => {
-            if (response.result === 1) {
-//              console.log(response.data)
-              this.secondList = response.data.secondTypes[0].warehouses;
-              this.quantityShow = response.data.secondTypes[0].quantityShow;
-              this.firstId = response.data.secondTypes[0].id;
-//            if(this.secondList.length !== 0){//服装
-//              this.firstStand = secondType;
-//              this.secondStand = secondType;
-//            }
-            } else {
-              con.toast(response.msg);
+      getSecondList(e, secondType, secondId) {
+        //红色
+
+        let $ele = $(e.target);
+        let index = $ele.index();
+
+        if ($ele.hasClass("active")) {
+          //三级全部改为ischeck true
+          this.clothesList.map(obj => {
+            obj.isCheck = true;
+            return obj;
+          });
+        }
+        if ($ele.hasClass("disable")) {
+          return false;
+        } else {
+          if (!$ele.hasClass("active")) {
+            this.firstStand = secondType;
+            $ele.addClass("active").siblings().removeClass("active");
+            $("#select").html("已选择 " + this.firstStand);
+            $('.three-list li').removeClass("active");
+            let url = window.location.href;
+            if (url.indexOf("?") !== -1) {
+              let id = url.split("?")[1].split("=")[1];
+              con.get("/api/product/standard?id=" + id + "&secondType=" + encodeURI(secondType) + "&firstTypeId=" + secondId, (response) => {
+                if (response.result === 1) {
+                  if (this.ifClothes) {//服装
+                    let size;
+                    let isHas;
+                    this.temp = response.data.secondTypes;
+                    this.clothesList.map(obj => {
+                      size = obj.secondType;
+                      isHas = false;
+                      this.temp.forEach((value) => {
+                        if (size === value.secondType) {
+                          isHas = true;
+                        }
+                      });
+                      obj.isCheck = isHas;
+                      return obj;
+                    });
+                    this.firstId = secondId;
+
+                  } else {
+                    this.quantityShow = response.data.secondTypes[0].quantityShow;
+                    this.firstId = response.data.secondTypes[0].id;
+                  }
+                } else {
+                  con.toast(response.msg);
+                }
+              })
             }
-          })
+          } else {
+            $ele.removeClass("active");
+            this.quantityShow = 0;
+            if ($(".three-list li").hasClass("active")) {
+              $("#select").html("请选择 " + this.secondStand);
+            } else {
+              $("#select").html("请选择 规格");
+              this.firstStand = "";
+            }
+          }
         }
       },
       addCount() {
@@ -449,7 +487,7 @@
         }
       },
       buy() {
-        con.toast("请选择产品类型", "center");
+//        con.toast("请选择产品类型", "center");
         this.argument = true;
       },
       /**
@@ -458,7 +496,7 @@
       addToCar() {
         if (this.isLogin) {
           if (this.firstStand) {
-            if(this.quantityShow > 0){
+            if (this.quantityShow > 0) {
               let shopCar = {
                 id: this.firstId,
                 src: this.shopInfo.coverImg,
@@ -467,12 +505,14 @@
                 price: this.shopInfo.price,
                 count: this.buyCount,
                 firstStand: this.firstStand,
+                secondStand: this.secondStand,
                 pid: this.pid,
                 fee: this.shopInfo.fee,
               };
-              con.addgood(shopCar.id, shopCar.src, shopCar.name, shopCar.original, shopCar.price, shopCar.count, shopCar.firstStand, shopCar.pid, this.shopInfo.fee);
+              con.addgood(shopCar.id, shopCar.src, shopCar.name, shopCar.original, shopCar.price, shopCar.count, shopCar.firstStand, shopCar.secondStand, shopCar.pid, this.shopInfo.fee);
               con.toast("添加购物车成功");
-            }else{
+              this.argument = false;
+            } else {
               con.toast("库存不足,去看看其他商品吧");
             }
           } else {
@@ -490,14 +530,14 @@
        */
       purchaseNow() {
         if (this.firstStand) {
-          if(this.quantityShow > 0){
+          if (this.quantityShow > 0) {
             this.$router.push("/confirm_order?id=" + this.firstId + "&count=" + this.buyCount + "&name=" + this.shopInfo.name
-              + "&firstStand=" + this.firstStand + "&firstStandId=" + this.firstId + "&repertory=" + this.quantityShow + "&original="
+              + "&firstStand=" + this.firstStand + "&secondStand=" + this.secondStand + "&firstStandId=" + this.firstId + "&repertory=" + this.quantityShow + "&original="
               + this.shopInfo.price + "&price=" + this.shopInfo.preferentialPrice + "&pid=" + this.pid);
-          }else{
+          } else {
             con.toast("库存不足,去看看其他商品吧");
           }
-        }else{
+        } else {
           con.toast("请选择商品规格");
         }
       },
@@ -506,6 +546,75 @@
         setTimeout(() => {
           this.$router.replace("/login");
         }, 1000)
+      },
+      getSize(e, index, secondType) {//获取三级列表
+        let $ele = $(e.target);
+        if ($ele.hasClass("active")) {
+          this.firstList.map(obj => {
+            obj.isCheck = true;
+            return obj;
+          })
+        }
+        if ($ele.hasClass("disable")) {
+          return false;
+        } else {
+          if (!$ele.hasClass("active")) {
+            $ele.addClass("active").siblings().removeClass("active");
+            $("#select").html("已选择 " + this.firstStand + " " + secondType);
+            con.get("/api/product/standard?id=" + this.$route.query.id + "&firstTypeId=" + "&secondType=" + secondType, (response) => {
+              if (response.result === 1) {
+                let size;
+                let isHas;
+                this.firstList.map(obj => {
+                  size = obj.firstType;
+                  isHas = false;
+                  response.data.firstTypes.forEach((value) => {
+                    if (size === value.firstType) {
+                      isHas = true;
+                    }
+                  });
+                  obj.isCheck = isHas;
+                  return obj;
+                });
+                this.clothesList.map(obj => {//将查询出来的库存和id赋给clothesList
+                  this.temp.forEach((value,index) => {
+                    if(obj.secondType === value.secondType){
+                      obj.id = value.id;
+                      obj.quantityShow = value.quantityShow;
+                    }
+                  });
+                  return obj
+                });
+                this.firstId = this.clothesList[index].id;
+                this.quantityShow = this.clothesList[index].quantityShow;
+                this.secondStand = secondType;
+              } else {
+                con.toast(response.msg)
+              }
+            })
+          } else {
+            $ele.removeClass("active");
+            this.quantityShow = 0;
+            if ($(".second li").hasClass("active")) {
+              $("#select").html("已选择 " + this.firstStand);
+            } else {
+              $("#select").html("请选择 规格");
+              this.secondStand = "";
+            }
+          }
+        }
+      },
+      /**
+       * 联系客服
+       */
+      contactService() {
+        con.get("/api/product/servicePhone", (response) => {
+          if (response.result === 1) {
+            this.serverPhone = response.data.servicePhone.phone;
+          } else {
+            con.toast(response.msg);
+          }
+        })
       }
     }
   }
@@ -751,6 +860,11 @@
     }
   }
 
+  .disable {
+    background: #ddd;
+    color: #999;
+  }
+
   .detail-wrap {
     .shop-detail {
       width: 100%;
@@ -891,7 +1005,7 @@
           }
         }
         &:nth-of-type(1) {
-          padding-top: 0.066666rem;
+          padding-top: 0.15rem;
           border-right: 1px solid #e5e5e5;
         }
         &:nth-of-type(2), &:nth-of-type(3) {

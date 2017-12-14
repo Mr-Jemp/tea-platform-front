@@ -11,7 +11,7 @@
     <!--好友列表-->
     <section class="content">
       <!---------------无好友状态---------------->
-      <div v-show="getFriendStatus" class="not-friend" style="display: none;">
+      <div v-if="getFriendStatus == false" class="not-friend">
         <router-link to="/allowinvite"><img src="../../assets/web/img_friends_empty.png"/></router-link>
         <p class="status">亲，您还没有好友，快去邀请吧</p>
       </div>
@@ -20,7 +20,7 @@
       <!---------------有好友状态---------------->
       <div class="my-friend" >
 
-        <div v-for="item in friendList.userDtoList" v-show="getFriendStatus" class="item clearfix">
+        <div v-for="item in userDtoList" v-if="getFriendStatus == true" class="item clearfix">
           <div class="head-img">
             <router-link to=""><img :src="item.headerImg"/></router-link>
           </div>
@@ -51,6 +51,7 @@
       return {
         getFriendStatus:true,
         friendList:{},
+        userDtoList:[],
       }
     },
     mounted(){
@@ -61,7 +62,10 @@
         con.get("/api/my/friends",(response) => {
           if(response.result === 1){
             this.friendList = response.data;
-            if(this.friendList.userDtoList.length != 0){
+            this.userDtoList = response.data.userDtoList;
+            if(this.userDtoList.length !== 0){
+              this.getFriendStatus = true;
+            }else{
               this.getFriendStatus = false;
             }
           }else{

@@ -2,24 +2,25 @@
   <div id="video">
     <!--头部-->
     <header class="header">
-      <a onclick="history.back()">
+      <router-link to="/home">
         <i class="back-pre"></i>
-      </a>
+      </router-link>
       <span class="title">视频</span>
     </header>
 
     <!--视频列表-->
     <section class="content">
       <!--直播-->
-      <!--<div class="solive">
+      <div v-if="video.videoLive" class="solive">
         <h3 class="title">
           <i class="icon1"></i>
           <span class="text">直播</span>
         </h3>
-        <router-link to="/">
-          <img src="../../assets/web/solive_img1.png"/>
+        <router-link to="/" v-for="item in video.videoLive">
+          <img :src="item.image"/>
+          <span class="caption">{{item.title}}</span>
         </router-link>
-      </div>-->
+      </div>
 
       <!--视频-->
       <div class="video-list">
@@ -28,10 +29,10 @@
           <span class="text">视频</span>
         </h3>
         <div v-for="item in video.videoList" class="video-item">
-          <a :href="item.videoUrl">
+          <router-link :to="'/video_play?id='+item.id">
             <img :src="item.image"/>
             <span class="caption">{{item.title}}</span>
-          </a>
+          </router-link>
         </div>
       </div>
     </section>
@@ -45,9 +46,7 @@
   export default {
     data(){
       return {
-        video:{
-
-        }
+        video:{},
       }
     },
     mounted(){

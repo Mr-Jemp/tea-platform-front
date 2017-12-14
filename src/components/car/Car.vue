@@ -28,7 +28,7 @@
                   <a>{{item.name}}</a>
                 </p>
               </router-link>
-              <p class="text2">{{item.firstStand}}</p>
+              <p class="text2">{{item.firstStand}} {{item.secondStand}}</p>
               <p class="text3">&yen;{{item.price}}</p>
               <div class="text4">
                 <span class="price">&yen;{{item.original}}</span>
@@ -128,7 +128,7 @@
             if (arr[i]['id'] === id) {
               $(".check > input").removeClass("checked").addClass("checkbox");
               this.countNum -= 1;
-              this.countPrice -= arr[i]["price"] * arr[i]["count"];
+              this.countPrice -= arr[i]["original"] * arr[i]["count"];
               arr.splice(i, 1);
               break;
             }
@@ -138,7 +138,7 @@
           $ele.removeClass("checkbox").addClass("checked");
           arr.push(this.shopList[index]);
           this.countNum += 1;
-          this.countPrice += arr[arr.length - 1]["price"] * arr[arr.length - 1]["count"];
+          this.countPrice += arr[arr.length - 1]["original"] * arr[arr.length - 1]["count"];
           if (arr.length === this.shopList.length) {
             $(".check > input").removeClass("checkbox").addClass("checked");
           }
@@ -162,10 +162,9 @@
 
           let price = 0;
           for (let i = 0; i < this.shopList.length; i++) {
-            price += this.shopList[i].price * this.shopList[i].count;
+            price += this.shopList[i].original * this.shopList[i].count;
           }
           this.countPrice = Math.floor(price * 100) / 100;
-
         } else {
           $(e.target).removeClass("checked").addClass("checkbox");
           $(".child input").removeClass("checked").addClass("checkbox");
@@ -188,7 +187,7 @@
           //完成
           e.target.innerText = "编辑";
           this.isEdit = false;
-          if (arr.length > 0) { //完成以后清空
+          if (arr.length >= 0) { //完成以后清空
             arr = [];
             this.countNum = 0;
             this.countPrice = 0;
@@ -219,7 +218,7 @@
               localStorage.setItem("shop", JSON.stringify(arr));
               this.$router.push("/confirm_order");
             } else {
-              con.toast("请选择商品购买数量,如您不想购买该商品，请取消选择","center");
+              con.toast("请选择商品购买数量,如您不想购买该商品，请取消选择", "center");
             }
           }
         }
@@ -246,10 +245,11 @@
               }
             }
             if (index !== -1) {
-              this.countPrice -= arr[i]['price'] * arr[i]['count'];
+              this.countPrice -= arr[i]['original'] * arr[i]['count'];
 
               this.shopList.splice(index, 1);
               arr.splice(i, 1);
+              $(".child input").removeClass("checked").addClass("checkbox");
             }
           }
         }
@@ -262,25 +262,29 @@
       subtract(index) {
         let price = 0;
         let now = 0;
-        if (arr.length === 0) {
+        if (arr.length <= 1) {
           if (this.shopList[index].count > 0) {
             this.shopList[index].count--;
             localStorage.setItem("good", JSON.stringify(this.shopList));
           } else {
-            con.toast("至少选择一件哦", "center")
+            con.toast("不能再减了哦", "center")
+          }
+          if (arr.length === 1) {
+            if (arr[0].original) {
+              this.countPrice = Math.floor((arr[0].original * arr[0].count) * 100) / 100;
+            }
           }
         } else {
           for (let i = 0; i < arr.length; i++) {
-            this.shopList[i] = arr[i];
             if (i === index && arr[index].count > 0) {
               arr[i].count--;
-              now = arr[i].price * arr[i].count;
+              now = Math.floor((arr[i].original * arr[i].count) * 100) / 100;
             } else {
-              price += Math.floor((arr[i].price * arr[i].count) * 100) / 100;
+              price += Math.floor((arr[i].original * arr[i].count) * 100) / 100;
             }
             localStorage.setItem("good", JSON.stringify(this.shopList));
           }
-          this.countPrice = price + now;
+          this.countPrice = Math.floor((price + now) * 100) / 100;
         }
       },
       /**
@@ -289,21 +293,25 @@
       addition(index) {
         let price = 0;
         let now = 0;
-        if (arr.length === 0) {
+        if (arr.length <= 1) {
           this.shopList[index].count++;
           localStorage.setItem("good", JSON.stringify(this.shopList));
+          if (arr.length === 1) {
+            if (arr[0].original) {
+              this.countPrice = Math.floor((arr[0].original * arr[0].count) * 100) / 100;
+            }
+          }
         } else {
           for (let i = 0; i < arr.length; i++) {
-            this.shopList[i] = arr[i];
             if (i === index) {
               arr[i].count++;
-              now = arr[i].price * arr[i].count;
+              now = Math.floor((arr[i].original * arr[i].count) * 100) / 100;
             } else {
-              price += Math.floor((arr[i].price * arr[i].count) * 100) / 100;
+              price += Math.floor((arr[i].original * arr[i].count) * 100) / 100;
             }
             localStorage.setItem("good", JSON.stringify(this.shopList));
           }
-          this.countPrice = price + now;
+          this.countPrice = Math.floor((price + now) * 100) / 100;
         }
       },
     }
@@ -471,7 +479,7 @@
         .text4 {
           position: relative;
           .num-count {
-            width: 2.266666rem;
+            min-width: 2.266666rem;
             min-height: 0.4rem;
             position: absolute;
             right: 0;

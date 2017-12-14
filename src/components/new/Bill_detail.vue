@@ -11,13 +11,18 @@
     <section class="content">
       <div class="wrap">
 
-        <div class="income">{{detailList.amount}}</div>
+        <div v-if="detailList.method == 1" class="income">{{-detailList.amount}}</div>
+        <div v-if="detailList.method == 2" class="income">{{+detailList.amount}}</div>
+        <div v-if="detailList.method == 3" class="income">{{+detailList.amount}}</div>
+        <div v-if="detailList.method == 4" class="income">{{-detailList.amount}}</div>
 
         <ul class="details">
           <li class="item clearfix">
             <span class="left-text">交易类型</span>
-            <span v-if="detailList.method == 1 || 4" class="right-text">支出</span>
-            <span v-if="detailList.method == 2 || 3" class="right-text">收入</span>
+            <span v-if="detailList.method == 1" class="right-text">支出</span>
+            <span v-if="detailList.method == 2" class="right-text">收入</span>
+            <span v-if="detailList.method == 3" class="right-text">收入</span>
+            <span v-if="detailList.method == 4" class="right-text">支出</span>
           </li>
           <li class="item clearfix">
             <span class="left-text">账单说明</span>
@@ -28,14 +33,14 @@
           </li>
           <li class="item clearfix">
             <span class="left-text">商品名称</span>
-            <span class="right-text">{{detailList.productNameList}}</span>
+            <span class="right-text">{{detailList.productNameList[0]}}</span>
           </li>
         </ul>
 
         <ul class="create-info">
           <li class="item clearfix">
             <span class="left-text">创建时间</span>
-            <span class="right-text">{{detailList.createTime}}</span>
+            <span class="right-text">{{detailList.date}}</span>
           </li>
           <li class="item clearfix">
             <span class="left-text">订单号</span>
@@ -64,11 +69,13 @@
     methods: {
       getBillDetail() {
         if (this.$route.query.id) {
-          con.get("/api/turnover/detail", (response) => {
+          con.get("/api/turnover/detail?id="+this.$route.query.id, (response) => {
             if(response.result === 1){
+
               this.detailList = response.data;
+              console.log(response.data)
             }else{
-              con.toast(response.msg)
+              con.toast(response.msg);
             }
           })
         }

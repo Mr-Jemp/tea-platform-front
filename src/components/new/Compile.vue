@@ -91,62 +91,82 @@
       }
     },
     methods:{
+      /**
+       * 保存地址信息
+       */
       saveAddress(){
-        if(this.linkman && this.hasPhone && this.address && $("#region").val()){
-          if(this.disabled === false){
-            if(isEdit){//编辑跳转过来的
-              con.post("/api/orderAddress/edit",{
-                "linkman": this.linkman,
-                "linkmanMobile": this.linkmanMobile,
-                "province": this.province,
-                "city": this.city,
-                "district": this.district,
-                "address": this.address,
-                "fixed": 0,
-                "id": this.id
-              },(response)=>{
-                if(response.result === 1){
-                  con.toast("保存成功");
-                  this.disabled = true;
-                  localStorage.clear();
-                  setTimeout(()=>{
-                    this.$router.replace("/shop_address");
-                    this.disabled = false;
-                  },1000)
+        if(this.linkman){
+          if(this.linkmanMobile){
+            if(this.hasPhone){
+              if($("#region").val()){
+                if(this.address){
+                  if(this.disabled === false){
+                    if(isEdit){//编辑跳转过来的
+                      con.post("/api/orderAddress/edit",{
+                        "linkman": this.linkman,
+                        "linkmanMobile": this.linkmanMobile,
+                        "province": this.province,
+                        "city": this.city,
+                        "district": this.district,
+                        "address": this.address,
+                        "fixed": 0,
+                        "id": this.id
+                      },(response)=>{
+                        if(response.result === 1){
+                          con.toast("保存成功");
+                          this.disabled = true;
+                          localStorage.clear();
+                          setTimeout(()=>{
+                            this.$router.replace("/shop_address");
+                            this.disabled = false;
+                          },1000)
+                        }else{
+                          con.toast(response.msg)
+                        }
+                      })
+                    }else{//新建地址
+                      this.province = $("#region").val().split(",")[0];
+                      this.city = $("#region").val().split(",")[1];
+                      this.district = $("#region").val().split(",")[2];
+                      con.post("/api/orderAddress/create",{
+                        "linkman":this.linkman,
+                        "linkmanMobile":this.linkmanMobile,
+                        "province":this.province,
+                        "city":this.city,
+                        "district":this.district || "",
+                        "address":this.address
+                      },(response) => {
+                        if(response.result === 1){
+                          con.toast("保存成功");
+                          this.disabled = true;
+                          setTimeout(()=>{
+                            this.$router.replace("/shop_address");
+                            this.disabled = false;
+                          },1000)
+                        }else{
+                          con.toast(response.msg)
+                        }
+                      })
+                    }
+                  }else{
+                    con.toast("请稍后再试");
+                  }
                 }else{
-                  con.toast(response.msg)
+                  con.toast("请填写您的详细收货地址")
                 }
-              })
-            }else{//新建地址
-              this.province = $("#region").val().split(",")[0];
-              this.city = $("#region").val().split(",")[1];
-              this.district = $("#region").val().split(",")[2];
-              con.post("/api/orderAddress/create",{
-                "linkman":this.linkman,
-                "linkmanMobile":this.linkmanMobile,
-                "province":this.province,
-                "city":this.city,
-                "district":this.district || "",
-                "address":this.address
-              },(response) => {
-                if(response.result === 1){
-                  con.toast("保存成功");
-                  this.disabled = true;
-                  setTimeout(()=>{
-                    this.$router.replace("/shop_address");
-                    this.disabled = false;
-                  },1000)
-                }else{
-                  con.toast(response.msg)
-                }
-              })
+              }else{
+                con.toast("请选择所在地区");
+              }
+            }else{
+              con.toast("手机号码有误，请重新输入");
             }
           }else{
-            con.toast("请稍后再试");
+            con.toast("手机号码不能为空");
           }
         }else{
-          con.toast("请填写完整信息")
+          con.toast("请填写收货人姓名");
         }
+
       },
       /**
        * 地区选择列表

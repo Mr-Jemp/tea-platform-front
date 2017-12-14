@@ -54,13 +54,14 @@ let con = {
    * @param original  当前商品原价
    * @param price 当前商品价格
    * @param count 购买数量
-   * @param firstStand  当前商品规格
+   * @param firstStand  当前商品一级规格
+   * @param secondStand 衣服二级规格
    * @param pid 父级id
    */
-  addgood(id, src, name, original, price, count, firstStand, pid, fee) {//在界面渲染的时候已经把商品信息参数整合到自己的函数中了
-    var contact = new Object();//单个商品的对象，暂时介质
-    var goodobj = new Object();//商品对象
-    var memberfilter = new Array();//商品信息
+  addgood(id, src, name, original, price, count, firstStand, secondStand, pid, fee) {//在界面渲染的时候已经把商品信息参数整合到自己的函数中了
+    let contact = new Object();//单个商品的对象，暂时介质
+    let goodobj = new Object();//商品对象
+    let memberfilter = new Array();//商品信息
     memberfilter[0] = "id";
     memberfilter[1] = "src";
     memberfilter[2] = "name";
@@ -69,8 +70,9 @@ let con = {
     memberfilter[5] = "price";
     memberfilter[6] = "count";
     memberfilter[7] = "firstStand";
-    memberfilter[8] = "pid";
-    memberfilter[9] = "fee";
+    memberfilter[8] = "secondStand";
+    memberfilter[9] = "pid";
+    memberfilter[10] = "fee";
     if (typeof (localStorage.good) == "undefined") {//此时没有商品
       contact.id = id;
       contact.src = encodeURI(src);
@@ -80,10 +82,11 @@ let con = {
       contact.price = parseFloat(price);
       contact.count = parseInt(count);
       contact.firstStand = firstStand;
+      contact.secondStand = secondStand;
       contact.pid = pid;
       contact.fee = fee;
-      var good = new Array();
-      var jsonText = JSON.stringify(contact, memberfilter);
+      let good = new Array();
+      let jsonText = JSON.stringify(contact, memberfilter);
       good[0] = JSON.parse(jsonText);
       localStorage.good = JSON.stringify(good, memberfilter);
 
@@ -91,8 +94,8 @@ let con = {
     else {//有商品，要判断商品在本地是否有存储，有的话sum+1
       //取数据
       goodobj = JSON.parse(localStorage.good);
-      var con = 0;
-      for (var i = 0; i < goodobj.length; i++) {
+      let con = 0;
+      for (let i = 0; i < goodobj.length; i++) {
         if (goodobj[i].id == id) {
           goodobj[i].sum = 1 + parseInt(goodobj[i].sum);
           localStorage.good = JSON.stringify(goodobj, memberfilter);
@@ -109,10 +112,11 @@ let con = {
         contact.price = parseFloat(price);
         contact.count = parseInt(count);
         contact.firstStand = firstStand;
+        contact.secondStand = secondStand;
         contact.pid = pid;
         contact.fee = fee;
-        var jsonText = JSON.stringify(contact, memberfilter);
-        var goolen = goodobj.length;
+        let jsonText = JSON.stringify(contact, memberfilter);
+        let goolen = goodobj.length;
         goodobj[goolen] = JSON.parse(jsonText);
         localStorage.good = JSON.stringify(goodobj, memberfilter);
       }

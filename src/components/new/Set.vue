@@ -70,10 +70,11 @@
       exitLogin(){
         this.disable = false;
         if(this.disable === false){
-          sessionStorage.removeItem("info");//退出登录清空收货地址
           con.post("/api/security/logout",{},(response) => {
             if(response.result === 1){
               con.toast("退出成功");
+              sessionStorage.clear();
+              localStorage.clear();
               setTimeout(()=>{
                 this.$router.replace("/me");
                 this.disable = true;

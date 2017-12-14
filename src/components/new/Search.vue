@@ -2,7 +2,7 @@
   <div id="search">
     <!--头部搜索栏-->
     <header class="header-search">
-      <a onclick="history.go(-1)">
+      <a onclick="history.back()">
         <i class="back-pre"></i>
       </a>
       <div class="search">
@@ -17,13 +17,13 @@
     <section v-show="historys" class="history">
       <div class="record clearfix">
         <span class="left-text">历史记录</span>
-        <span class="right-icon"></span>
+        <span @click="clearHistory" class="right-icon"></span>
       </div>
 
       <ul class="list clearfix">
-      	<li v-for="item in searchHistory">
-      		<router-link to=""><span>{{item}}</span></router-link>
-      	</li>
+        <li v-for="item in searchHistory">
+          <router-link :to="'/result?keyword='+item"><span>{{item}}</span></router-link>
+        </li>
       </ul>
     </section>
 
@@ -34,33 +34,41 @@
   import {con} from "../../assets/js/common"
 
   export default {
-    data(){
-      return{
-        historys:true,
-        keyword:"",
-        searchHistory:[],
+    data() {
+      return {
+        historys: true,
+        keyword: "",
+        searchHistory: [],
       }
     },
-    mounted(){
-
+    mounted() {
+      this.getHistory();
     },
-    methods:{
-      searchClick(){
-        /*this.searchHistory.push(this.keyword)
-        sessionStorage.setItem("keyword",this.searchHistory);*/
-        this.$router.replace("/result?keyword="+encodeURI(this.keyword));
+    methods: {
+      searchClick() {
+        this.$router.push("/result?keyword=" + encodeURI(this.keyword));
+      },
+      getHistory() {
+        let hisList = localStorage.getItem("historyItems");
+        if(hisList){
+          this.searchHistory = hisList.split("|");
+        }
+      },
+      clearHistory() {
+        localStorage.removeItem("historyItems");
+        this.searchHistory = [];
       }
     }
   }
 </script>
 
 <style scoped lang="less">
-  #search{
+  #search {
     width: 100%;
     height: 100vh;
     background: #f5f5f5;
 
-    .header-search{
+    .header-search {
       width: 100%;
       height: 1.173333rem;
       background: #303030;
@@ -69,7 +77,7 @@
       line-height: 1rem;
       position: relative;
 
-      >a{
+      > a {
         display: inline-block;
         width: 0.9rem;
         height: 100%;
@@ -79,7 +87,7 @@
         padding-top: 30/75rem;
         text-align: center;
       }
-      .back-pre{
+      .back-pre {
         display: inline-block;
         width: 0.24rem;
         height: 0.426666rem;
@@ -99,7 +107,7 @@
         position: relative;
         left: 50/75rem;
 
-        .search-icon{
+        .search-icon {
           display: inline-block;
           width: 0.48rem;
           height: 0.48rem;
@@ -108,7 +116,7 @@
           margin-top: 0.133333rem;
           margin-right: 0.266666rem;
         }
-        .delete-icon{
+        .delete-icon {
           display: inline-block;
           width: 0.306666rem;
           height: 0.306666rem;
@@ -121,7 +129,7 @@
           margin: auto;
         }
 
-        input{
+        input {
           width: 5.466666rem;
           color: #333;
           height: 0.48rem;
@@ -138,7 +146,7 @@
 
       }
 
-      .search-btn{
+      .search-btn {
         color: #fff;
         margin-left: .8rem;
         position: absolute;
@@ -148,19 +156,19 @@
     }
   }
 
-  .history{
+  .history {
     width: 100%;
     padding: 0px 0.4rem;
 
-    .record{
+    .record {
       width: 9.2rem;
       padding: 0.4rem 0;
 
-      .left-text{
+      .left-text {
         float: left;
         color: #333;
       }
-      .right-icon{
+      .right-icon {
         float: right;
         display: inline-block;
         width: 0.32rem;
@@ -171,9 +179,9 @@
       }
     }
 
-    .list{
+    .list {
 
-      li{
+      li {
         float: left;
         background: #e5e5e5;
         padding: 0.093333rem 0.266666rem;
@@ -182,7 +190,7 @@
         -moz-border-radius: 0.266666rem;
         margin: 0 0.266666rem 0.266666rem 0;
 
-        a{
+        a {
           display: block;
           width: 100%;
           height: 100%;

@@ -2,9 +2,9 @@
   <div id="order-detail">
     <!--头部-->
     <header class="header">
-      <a onclick="history.back()">
+      <router-link to="/my_order?type=1">
         <i class="back-pre"></i>
-      </a>
+      </router-link>
       <span class="title">订单详情</span>
     </header>
 
@@ -105,15 +105,12 @@
     </footer>
 
     <!--已付款-->
-    <footer v-if="payStatus == 1" class="footer">
-      <span @click="extendTheReceiving(order.id)" class="btn">延长收货</span>
-      <span @click="requestReturn(order.id)" class="btn">申请退货</span>
-      <span @click="seaLogistics(order.id)" class="btn">查看物流</span>
-      <span @click="confirmReceipt(order.id)" class="btn">确认收货</span>
-    </footer>
+    <footer v-if="payStatus == 1" class="footer hide"></footer>
 
     <!--已发货-->
     <footer v-if="payStatus == 2" class="footer">
+      <span @click="extendTheReceiving(order.id)" class="btn">延长收货</span>
+      <span @click="requestReturn(order.id)" class="btn">申请退货</span>
       <span @click="seaLogistics(order.id)" class="btn">查看物流</span>
       <span @click="confirmReceipt(order.id)" class="btn">确认收货</span>
     </footer>
@@ -124,13 +121,13 @@
     </footer>
 
     <!--取消订单-->
-    <footer v-if="payStatus == 4" class="footer"></footer>
+    <footer v-if="payStatus == 4" class="footer hide"></footer>
 
     <!--申请退款-->
-    <footer v-if="payStatus == 5" class="footer"></footer>
+    <footer v-if="payStatus == 5" class="footer hide"></footer>
 
     <!--交易关闭-->
-    <footer v-if="payStatus == 6" class="footer"></footer>
+    <footer v-if="payStatus == 6" class="footer hide"></footer>
 
   </div>
 </template>
@@ -145,6 +142,7 @@
         orderAddress: {},
         productList: [],
         payStatus: "",
+        pay: this.$route.query.pay,
       }
     },
     computed: {
@@ -244,7 +242,9 @@
     background: #f5f5f5;
     padding-bottom: 1.306666rem;
   }
-
+  .hide{
+    display: none;
+  }
   .status {
     height: 1.066666rem;
     background: #fff;

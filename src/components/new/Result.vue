@@ -97,15 +97,10 @@
       orderStatus() {
         this.getSearchResult();
       },
-      /*lowPrice(){
-        this.getSearchResult();
-      },
-      highPrice(){
-        this.getSearchResult();
-      }*/
     },
     mounted() {
       this.getSearchResult();
+      this.saveHistory(this.keyword);
     },
     methods: {
       /**
@@ -123,7 +118,7 @@
        */
       getSearchResult() {
         let url = window.location.href;
-        if(url.indexOf("?") !== -1){
+        if (url.indexOf("?") !== -1) {
           this.keyword = decodeURI(url.split("?")[1].split("=")[1]);
         }
         con.get("/api/product/search?pageNo=" + this.pageNo + "&rows=" + this.rows +
@@ -169,6 +164,19 @@
           $('.icon-order').css("transform", "rotateX(0deg)");
         }
       },
+      saveHistory(keyword) {
+        if (keyword) {
+          keyword = keyword.trim();//去除搜索关键字空格
+          let {historyItems} = localStorage;
+          if (historyItems === undefined) {
+            localStorage.historyItems = keyword;
+          } else {
+            const onlyItem = historyItems.split("|").filter(e => e != keyword);
+            if (onlyItem.length > 0) historyItems = keyword + "|" + onlyItem.join("|");
+            localStorage.historyItems = historyItems;
+          }
+        }
+      }
     }
   }
 </script>

@@ -60,8 +60,7 @@
             <div class="text-box">
               <a>
                 <p class="text1">{{buyShop.name}}</p>
-
-                <p class="text2">{{buyShop.firstStand}}</p>
+                <p class="text2">{{buyShop.firstStand}} {{buyShop.secondStand}}</p>
                 <p class="text3">&yen;{{buyShop.original}}</p>
                 <p class="text4 clearfix">
                   <span class="price">&yen;{{buyShop.price}}</span>
@@ -84,10 +83,10 @@
               <a>
                 <p class="text1">{{item.name}}</p>
 
-                <p class="text2">{{item.firstStand}}</p>
-                <p class="text3">&yen;{{item.original}}</p>
+                <p class="text2">{{item.firstStand}} {{item.secondStand}}</p>
+                <p class="text3">&yen;{{item.price}}</p>
                 <p class="text4 clearfix">
-                  <span class="price">&yen;{{item.price}}</span>
+                  <span class="price">&yen;{{item.original}}</span>
                   <span class="num">×{{item.count}}</span>
                 </p>
               </a>
@@ -125,7 +124,7 @@
     <footer class="footer">
       <div class="order-total">
         <span class="count">共{{totalCount}}件，合计：
-          <span class="price">&yen;{{sum || totals}}</span>
+          <span class="price">&yen;{{sum}}</span>
         </span>
       </div>
       <a @click="sumbitOrder" class="sumbit-order">提交订单</a>
@@ -143,6 +142,7 @@
       return {
         isLogin: false,
         hasAddress: false,
+        fixedAddress: {},
         addressList: {
           id: "",
           name: "",
@@ -155,6 +155,7 @@
           count: "",//购买数量
           name: "",
           firstStand: "",//商品第二属性
+          secondStand: "",
           firstStandId: "",//商品第二属性id
           repertory: "",//库存
           original: "",//商品原价
@@ -176,6 +177,7 @@
         showFee: true,
         discountUse: "",
         orderId: "",
+        userDiscount: "",
       }
     },
     computed: {
@@ -183,27 +185,27 @@
         let total = 0;
         if (this.carList.length !== 0) {
           for (let i = 0; i < this.carList.length; i++) {
-            total += this.carList[i].price * this.carList[i].count;
+            total += this.carList[i].original * this.carList[i].count;
           }
-          return total;
+          if (this.ifDiscount && this.checkeds) {
+            return total + "+" + this.discount + "积分";
+          } else {
+            return total + this.fee;
+          }
         } else {
-          return total += (this.buyShop.count * this.buyShop.price) + this.fee;
-        }
-      },
-      totals() {
-        let sum = 0;
-        for (let i = 0; i < this.carList.length; i++) {
-          sum += this.carList[i].price * this.carList[i].count;
-        }
-        if (this.ifDiscount) {
-          return sum + "+" + this.discount + "积分";
-        } else {
-          return sum;
+          if (this.ifDiscount && this.checkeds) {
+            return total = (this.buyShop.count * this.buyShop.price) + "+" + this.discount + "积分";
+          } else {
+            return total = (this.buyShop.count * this.buyShop.price) + this.fee;
+          }
         }
       },
     },
     mounted() {
       this.getLoginStatus();
+      if (!sessionStorage.getItem("info")) {
+        this.getfiexdAddress();
+      }
       this.getAddress();
       this.getBuyShop();
       this.getMyIntegral();
@@ -213,11 +215,36 @@
        * 获取登录状态
        */
       getLoginStatus() {
-        con.get("/api/my/index", (response) => {
+        con.get("/api/my/info", (response) => {
           if (response.result === 1) {
             this.isLogin = true;
+            this.userDiscount = response.data.accumulatePoints;
           } else {
-            con.toast(response.msg, "center");
+            con.toast("登录失败，请重新登录", "center");
+            setTimeout(() => {
+              this.$router.push("/login");
+            }, 1000)
+          }
+        })
+      },
+      /**
+       * 获取默认地址
+       */
+      getfiexdAddress() {
+        let address;
+        con.get("/api/orderAddress/list", (response) => {
+          if (response.result === 1) {
+            address = response.data.addressList;
+            for (let i = 0; i < address.length; i++) {
+              if (address[i].fixed === 1) {
+                this.addressList.id = address[i].id;
+                this.addressList.name = address[i].linkman;
+                this.addressList.phone = address[i].linkmanMobile;
+                this.addressList.processed = this.addressList.phone.substring(0, 3) + "****" + this.addressList.phone.substring(7);
+                this.addressList.address = address[i].province + address[i].city + address[i].district + address[i].address;
+                this.hasAddress = true;
+              }
+            }
           }
         })
       },
@@ -243,18 +270,17 @@
         let url = window.location.href;
         if (url.indexOf("?") !== -1) {//判断参数是否存在，存在则是单品购买
           let obj = con.urlToObj(url);
-//          console.log(obj)
           this.buyShop.id = obj.id;
           this.buyShop.count = obj.count;//购买数量
           this.buyShop.name = decodeURI(obj.name);
-          this.buyShop.firstStand = obj.firstStand;//商品第二属性
+          this.buyShop.firstStand = decodeURI(obj.firstStand);//商品第二属性
+          this.buyShop.secondStand = decodeURI(obj.secondStand);//商品第二属性
           this.buyShop.firstStandId = obj.firstStandId;//商品第二属性id
           this.buyShop.repertory = obj.repertory;//库存
           this.buyShop.original = obj.original;//商品原价
           this.buyShop.price = obj.price;//商品当前价格
           this.buyShop.pid = obj.pid;
           this.totalCount = this.buyShop.count;
-//          console.log(this.buyShop.firstStandId);
           con.get("/api/product/detail?id=" + this.buyShop.pid, (response) => {
             if (response.result === 1) {
               this.buyShop.img = response.data.coverImg;
@@ -272,7 +298,6 @@
       getMyIntegral() {
         con.get("/api/order/freight", (response) => {
           if (response.result === 1) {
-//            console.log(response.data);
             this.feeReachFree = response.data.expressFee.feeReachFree;
             this.discount = response.data.expressFee.discount;
             this.accumulatePoints = response.data.accumulatePoints;
@@ -283,11 +308,15 @@
       },
 
       fn() {
-        if(this.feeReachFree <= 0){
+        if (this.feeReachFree <= 0) {
           //不满减
-          this.ifDiscount = false;
+          if (this.discount <= 0) {
+            this.ifDiscount = false;
+          } else {
+            this.ifDiscount = true;
+          }
           this.discountUse = 0;
-        }else{
+        } else {
           //满减
           if (this.sum >= this.feeReachFree) {//免邮
             this.fee = 0;
@@ -314,9 +343,13 @@
         if ($(e.target).attr("class") === "checkbox") {
           $(e.target).removeClass("checkbox").addClass("checked");
           this.checkeds = true;
+          this.discountUse = 1;
+          this.showFee = false;
         } else {
           $(e.target).removeClass("checked").addClass("checkbox");
           this.checkeds = false;
+          this.discountUse = 0;
+          this.showFee = true;
         }
       },
       tips() {
@@ -329,20 +362,20 @@
         if (this.isLogin && this.hasAddress) {
           let url = window.location.href;
           if (url.indexOf("?") !== -1) {//单品购买
-            let obj = {};
-            obj.id = this.buyShop.firstStandId;
-            this.productList.push(obj);
-            obj.quantity = this.buyShop.count;
-            this.requestPost(this.discountUse, this.productList);
+            let obj1 = {};
+            obj1.id = this.buyShop.firstStandId;
+            obj1.quantity = this.buyShop.count;
+            this.getDiscount(obj1);
           } else {//购物车
-            let obj;
+            let obj2;
+            let carShop = [];
             for (let i = 0; i < this.carList.length; i++) {
-              obj = {};
-              obj["id"] = this.carList[i].id;
-              obj["quantity"] = this.carList[i].count;
-              this.productList.push(obj);
+              obj2 = {};
+              obj2["id"] = this.carList[i].id;
+              obj2["quantity"] = this.carList[i].count;
+              carShop.push(obj2);
             }
-            this.requestPost(this.discountUse, this.productList);
+            this.getDiscount(carShop);
           }
         } else {
           con.toast("请填写收货地址", "center");
@@ -357,28 +390,51 @@
         }, (response) => {
           if (response.result === 1) {
             this.orderId = response.data.orderId;
-            con.toast("提交成功", "center");
+            con.toast("提交成功,即将跳转支付", "center");
             setTimeout(() => {
               this.$router.push("/select_pay?id=" + this.orderId);
             }, 500)
           } else {
-            con.toast(response.data.productName + "<br />" + this.errInfo(response.data.note), "center");
+            con.toast((this.errInfo(response.data.note)), "center");
           }
         })
       },
-      errInfo(num){
-        if(num === 1){
+      errInfo(num) {
+        if (num === 1) {
           return "商品购买数量有误";
-        }else if(num === 2){
+        } else if (num === 2) {
           return "商品已下架";
-        }else if(num === 3){
+        } else if (num === 3) {
           return "不在购买时间段";
-        }else if(num === 4){
+        } else if (num === 4) {
           return "商品库存不足";
-        }else if(num === 5){
+        } else if (num === 5) {
           return "积分不足";
         }
+      },
+      getDiscount(obj) {
+        let car = obj instanceof Array;
+        if (this.discountUse === 0) {//不使用积分
+          this.productList.push(obj);
+          if(car){//购物车
+            this.requestPost(this.discountUse, obj)
+          }else{//单品
+            this.requestPost(this.discountUse, this.productList);
+          }
+        }else{
+          if (this.userDiscount >= this.discount) {
+            this.productList.push(obj);
+            if(car){//购物车
+              this.requestPost(this.discountUse, obj)
+            }else{//单品
+              this.requestPost(this.discountUse, this.productList);
+            }
+          } else {
+            con.toast("积分不足", "center");
+          }
+        }
       }
+
     }
   }
 </script>

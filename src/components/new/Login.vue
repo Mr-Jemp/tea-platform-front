@@ -66,8 +66,13 @@
       }
     },
     watch: {
-      mobile(value, oldValue) {
-        this.hasGetCode = /^1[34578]\d{9}$/.test(value);
+      mobile(value) {
+        let reg = /^[1][3,4,5,7,8][0-9]{9}$/.test(value);
+        if (reg && value.trim().length === 11) {
+          this.hasGetCode = true;
+        } else {
+          this.hasGetCode = false;
+        }
       }
     },
     created() {
@@ -98,33 +103,35 @@
         if (this.mobile.length === 0) {
           con.toast("请输入手机号码");
         } else {
-          if (this.hasGetCode) {
-            if (this.mobileCode.length === 0) {
-              con.toast("请输入验证码");
-            } else {
-              if (this.mobileCode.length === 6) {
-                con.post("/api/security/login", {
-                  "mobile": this.mobile,
-                  "mobileCode": this.mobileCode
-                }, response => {
-                  if (response.result === 1) {
-                    //登录成功
-                    con.toast("登陆成功");
-                    if (response.data.openidUrl) {//跳转微信
-                      window.location.href = response.data.openidUrl;
-                    }
-                    setTimeout(() => {
-                      this.$router.replace("/me");
-                    }, 1500);
-                  } else {
-                    con.toast(response.msg);
-                  }
-                })
+          if(this.mobile.trim().length === 11){
+            if (this.hasGetCode) {
+              if (this.mobileCode.length === 0) {
+                con.toast("请输入验证码");
               } else {
-                con.toast("验证码有误");
+                if (this.mobileCode.length === 6) {
+                  con.post("/api/security/login", {
+                    "mobile": this.mobile,
+                    "mobileCode": this.mobileCode
+                  }, response => {
+                    if (response.result === 1) {
+                      //登录成功
+                      con.toast("登陆成功");
+                      if (response.data.openidUrl) {//跳转微信
+                        window.location.href = response.data.openidUrl;
+                      }
+                      setTimeout(() => {
+                        this.$router.replace("/me");
+                      }, 1500);
+                    } else {
+                      con.toast(response.msg);
+                    }
+                  })
+                } else {
+                  con.toast("验证码有误");
+                }
               }
             }
-          } else {
+          }else{
             con.toast("手机号码有误，请重新输入")
           }
         }
