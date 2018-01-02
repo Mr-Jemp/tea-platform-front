@@ -10,7 +10,7 @@
 
     <!--内容-->
     <section class="content">
-      <div class="item-box">
+      <!--<div class="item-box">
         <h4 class="title">我们的态度：</h4>
         <p class="item-text">创造空间；（空间包含市场空间、利润空间、发展空间、创新空间）</p>
         <p class="item-text">财富共盈；（共盈包含商家共盈、员工共盈、茶友共盈、收藏共盈）</p>
@@ -28,15 +28,15 @@
       <div class="item-box">
         <h4 class="title">我们的追求：</h4>
         <p class="item-text">全国品牌链锁经营，“茶莫停”总会有一间就在你身边，总有一份关爱时刻陪伴着你。</p>
-      </div>
-      <!--{{text}}-->
+      </div>-->
+      <pre>{{text}}</pre>
     </section>
 
     <!--版权信息-->
-    <footer class="footer">
+    <!--<footer class="footer">
       <p>Copyright© 2017茶莫停</p>
       <p>广州百年保健食品有限公司</p>
-    </footer>
+    </footer>-->
 
   </div>
 </template>
@@ -57,9 +57,7 @@
       getAboutInfo(){
         con.get("/api/my/about",(response) => {
           if(response.result === 1){
-            console.log(response);
             this.text = response.data.content;
-            //todo 关于我们
           }
         })
       }
@@ -104,5 +102,14 @@
     margin-top: 0.2rem;
   }
 }
+
+  pre {
+    padding: 10px 0;
+    max-width: 100%;
+    white-space: pre-line;
+    font-size: 30/75rem;
+    line-height: 40/75rem;
+    color: #111;
+  }
 
 </style>

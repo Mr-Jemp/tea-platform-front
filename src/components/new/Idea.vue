@@ -35,7 +35,7 @@
       <!--联系方式-->
       <div class="title">联系方式</div>
       <div class="contact">
-        <input v-model="contact" type="text" placeholder="选填，便于我们与您联系">
+        <input v-model="contact" type="number" placeholder="选填，便于我们与您联系">
       </div>
 
       <div class="submit">

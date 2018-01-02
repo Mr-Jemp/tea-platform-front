@@ -24,7 +24,7 @@
         </li>
         <li class="item clearfix">
           <span class="left">卡号</span>
-          <input v-model="bankNum" type="text" class="center" placeholder="请输入银行卡号码"/>
+          <input v-model="bankNum" type="number" class="center" placeholder="请输入银行卡号码"/>
         </li>
       </ul>
 
@@ -32,7 +32,7 @@
       <ul class="list-2">
         <li class="item clearfix">
           <span class="left">提现金额</span>
-          <input v-model="getMoney" type="text" class="center" placeholder="请输入金额"/>
+          <input v-model="getMoney" type="number" class="center" placeholder="请输入金额"/>
         </li>
         <li class="item clearfix">
           <span class="left">&yen;{{getMoney}}</span>

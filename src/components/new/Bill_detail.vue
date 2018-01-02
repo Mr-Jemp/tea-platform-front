@@ -17,32 +17,39 @@
         <div v-if="detailList.method == 4" class="income">{{-detailList.amount}}</div>
 
         <ul class="details">
-          <li class="item clearfix">
+          <li class="item">
             <span class="left-text">交易类型</span>
-            <span v-if="detailList.method == 1" class="right-text">支出</span>
-            <span v-if="detailList.method == 2" class="right-text">收入</span>
-            <span v-if="detailList.method == 3" class="right-text">收入</span>
-            <span v-if="detailList.method == 4" class="right-text">支出</span>
+            <div class="right-text">
+              <span v-if="detailList.method == 1">支出</span>
+              <span v-if="detailList.method == 2">收入</span>
+              <span v-if="detailList.method == 3">收入</span>
+              <span v-if="detailList.method == 4">支出</span>
+            </div>
           </li>
-          <li class="item clearfix">
+          <li class="item" >
             <span class="left-text">账单说明</span>
-            <span v-if="detailList.method == 1" class="right-text">购买商品</span>
-            <span v-if="detailList.method == 2" class="right-text">佣金</span>
-            <span v-if="detailList.method == 3" class="right-text">退款</span>
-            <span v-if="detailList.method == 4" class="right-text">提现</span>
+            <div class="right-text">
+              <span v-if="detailList.method == 1">购买商品</span>
+              <span v-if="detailList.method == 2">佣金</span>
+              <span v-if="detailList.method == 3">退款</span>
+              <span v-if="detailList.method == 4">提现</span>
+            </div>
           </li>
-          <li class="item clearfix">
+          <li class="item">
             <span class="left-text">商品名称</span>
-            <span class="right-text">{{detailList.productNameList[0]}}</span>
+            <div class="right-text">
+              <p v-for="name in detailList.productNameList">{{name}}</p>
+            </div>
           </li>
+
         </ul>
 
         <ul class="create-info">
-          <li class="item clearfix">
+          <li class="item">
             <span class="left-text">创建时间</span>
             <span class="right-text">{{detailList.date}}</span>
           </li>
-          <li class="item clearfix">
+          <li class="item">
             <span class="left-text">订单号</span>
             <span class="right-text">{{detailList.outTradeNo}}</span>
           </li>
@@ -60,7 +67,7 @@
   export default {
     data() {
       return {
-        detailList:{},
+        detailList: {},
       }
     },
     mounted() {
@@ -69,12 +76,12 @@
     methods: {
       getBillDetail() {
         if (this.$route.query.id) {
-          con.get("/api/turnover/detail?id="+this.$route.query.id, (response) => {
-            if(response.result === 1){
+          con.get("/api/turnover/detail?id=" + this.$route.query.id, (response) => {
+            if (response.result === 1) {
 
               this.detailList = response.data;
               console.log(response.data)
-            }else{
+            } else {
               con.toast(response.msg);
             }
           })
@@ -127,6 +134,9 @@
         -webkit-line-clamp: 2;
         padding-bottom: 0.02rem;
         -webkit-box-orient: vertical;
+        p{
+          margin-bottom: 10/75rem;
+        }
       }
 
       .item {
@@ -135,9 +145,17 @@
 
       .details {
         border-bottom: 1px solid #f5f5f5;
+        li {
+          display: flex;
+          justify-content: space-between;
+        }
       }
       .create-info {
         padding-top: 0.426666rem;
+        li {
+          display: flex;
+          justify-content: space-between;
+        }
       }
 
     }

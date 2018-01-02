@@ -17,7 +17,7 @@
       	</li>
       	<li class="item">
           <span class="text">手机号码：</span>
-          <input v-model="linkmanMobile" type="text" />
+          <input v-model="linkmanMobile" type="number" />
         </li>
         <li class="item" id="area">
           <span class="text">所在地区：</span>

@@ -137,6 +137,8 @@
   import {con} from "../../assets/js/common"
   import $ from "jquery"
 
+  let obj;
+  let param;
   export default {
     data() {
       return {
@@ -391,6 +393,14 @@
           if (response.result === 1) {
             this.orderId = response.data.orderId;
             con.toast("提交成功,即将跳转支付", "center");
+            try {
+              console.log(product);
+              console.log(JSON.stringify(product));
+              localStorage.setItem("param", JSON.stringify(product));//将提交的商品保存起来遍历购物车便于删除
+              this.clearShopCar();
+            } catch (e) {
+              alert(e);
+            }
             setTimeout(() => {
               this.$router.push("/select_pay?id=" + this.orderId);
             }, 500)
@@ -399,6 +409,11 @@
           }
         })
       },
+      /**
+       * 提交失败的返回信息
+       * @param num 根据num值判断
+       * @returns {*} 返回的错误信息
+       */
       errInfo(num) {
         if (num === 1) {
           return "商品购买数量有误";
@@ -412,29 +427,51 @@
           return "积分不足";
         }
       },
+      /**
+       * 是否使用积分
+       */
       getDiscount(obj) {
         let car = obj instanceof Array;
+        this.productList = [];
         if (this.discountUse === 0) {//不使用积分
           this.productList.push(obj);
-          if(car){//购物车
-            this.requestPost(this.discountUse, obj)
-          }else{//单品
+          if (car) {//购物车
+            this.requestPost(this.discountUse, obj);
+          } else {//单品
             this.requestPost(this.discountUse, this.productList);
           }
-        }else{
+        } else {
           if (this.userDiscount >= this.discount) {
             this.productList.push(obj);
-            if(car){//购物车
+            if (car) {//购物车
               this.requestPost(this.discountUse, obj)
-            }else{//单品
+            } else {//单品
               this.requestPost(this.discountUse, this.productList);
             }
           } else {
             con.toast("积分不足", "center");
           }
         }
+      },
+      /**
+       * 清空购物车
+       */
+      clearShopCar() {
+        try {
+          obj = JSON.parse(localStorage.good);
+          param = JSON.parse(localStorage.param);
+          obj.map((item, index) => {
+            param.forEach((value, i) => {
+              if (obj[index].id === param[i].id) {
+                obj.splice(index, 1);
+                localStorage.setItem("good", JSON.stringify(obj));//替换购物车列表
+              }
+            })
+          });
+        } catch (e) {
+          
+        }
       }
-
     }
   }
 </script>
@@ -676,12 +713,12 @@
 
   .footer {
     width: 100%;
+    max-width: 600px;
     height: 88/75rem;
     background: #fff;
     padding-left: 30/75rem;
     position: fixed;
     bottom: 0;
-    left: 0;
     display: flex;
     display: -webkit-flex;
     align-items: center;

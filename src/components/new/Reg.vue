@@ -12,7 +12,7 @@
     <section class="content">
       <div class="phone">
         <i class="icon-phone"></i>
-        <input v-model="mobile" type="text" placeholder="请输入11位的手机号码"/>
+        <input v-model="mobile" type="number" placeholder="请输入11位的手机号码"/>
         <i class="clear" @click="clear"></i>
       </div>
 
@@ -103,7 +103,10 @@
               con.post("/api/security/registerByMobile", {
                 "mobile": this.mobile,
                 "mobileCode": this.mobileCode,
-                "invitationCode": this.invitationCode
+                "invitationCode": this.invitationCode,
+                "province": "",
+                "city": "",
+                "district": "",
               }, (response) => {
                 if(response.result === 1){
                   //注册成功

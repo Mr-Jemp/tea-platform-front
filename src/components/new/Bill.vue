@@ -12,14 +12,16 @@
     <ul v-if="turnoverList.length > 0" class="bill-list">
       <li v-for="item in turnoverList" :id="item.id">
         <router-link :to="'/bill_detail?id='+item.id">
-          <i class="icon-income"></i>
+          <i v-if="item.method == 1 || item.method == 4" class="icon-express"></i>
+          <i v-else-if="item.method == 2 || item.method == 3" class="icon-income"></i>
           <div class="center">
             <div class="one">
               <a>{{item.productName}}</a>
             </div>
             <div class="two">{{item.createTime}}</div>
           </div>
-          <span class="right-money">{{item.amount}}</span>
+          <span v-if="item.method == 1 || item.method == 4" class="right-money">-{{item.amount}}</span>
+          <span v-else-if="item.method == 2 || item.method == 3" class="right-money">+{{item.amount}}</span>
         </router-link>
       </li>
     </ul>

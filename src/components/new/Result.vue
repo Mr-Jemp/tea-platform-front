@@ -408,11 +408,11 @@
 
   .aside {
     width: 100%;
+    max-width: 600px;
     height: 100vh;
     background: rgba(0, 0, 0, .5);
     position: fixed;
     top: 0;
-    right: 0;
 
     .wrap {
       width: 8rem;

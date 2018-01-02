@@ -29,11 +29,282 @@
       </ul>
     </nav>
 
-    <!--全部订单列表-->
-    <section v-show="type == 1" class="order-list">
-      <div v-for="(item, index) in allOrderList" class="wrap">
-        <!--待付款-->
-        <div v-if="item.payStatus === 0">
+    <div :style="{'-webkit-overflow-scrolling': scrollMode}">
+      <!--全部订单列表-->
+      <section v-show="type == 1" class="order-list">
+        <div v-for="(item, index) in allOrderList" class="wrap">
+          <!--待付款-->
+          <div v-if="item.payStatus === 0">
+            <!--订单号-->
+            <div class="order-num">
+              <span class="id">订单号：{{item.outTradeNo}}</span>
+              <span class="status">待付款</span>
+            </div>
+            <!--订单详情-->
+            <router-link :to="'/order_detail?id='+item.id" v-for="order in item.productList">
+              <div class="order-detail clearfix">
+                <div class="left">
+                  <a>
+                    <img :src="order.coverImg"/>
+                  </a>
+                </div>
+                <ul class="right">
+                  <li>
+                    <a class="text-1">{{order.name}}</a>
+                  </li>
+                  <li class="text-2">{{order.norms}}</li>
+                  <li class="text-3">{{order.price}}</li>
+                  <li class="text-4">
+                    <span class="price">{{order.preferentialPrice}}</span>
+                    <span class="count">x{{order.quantity}}</span>
+                  </li>
+                </ul>
+              </div>
+            </router-link>
+            <!--合计-->
+            <div class="total">
+              共{{item.quantity}}件商品 合计：<span>&yen;{{item.payAmount + item.expressFee}}</span>（含运费￥{{item.expressFee}}.00）
+            </div>
+            <!--操作-->
+            <div class="order-operate">
+              <span @click="cancalOrder(item.id)" class="btn">取消订单</span>
+              <router-link :to="'/select_pay?id='+item.id"><span class="btn">付款</span></router-link>
+            </div>
+          </div>
+          <!--待发货-->
+          <div v-else-if="item.payStatus === 1">
+            <!--订单号-->
+            <div class="order-num">
+              <span class="id">订单号：{{item.outTradeNo}}</span>
+              <span class="status">待发货</span>
+            </div>
+            <!--订单详情-->
+            <router-link :to="'/order_detail?id='+item.id" v-for="order in item.productList">
+              <div class="order-detail clearfix">
+                <div class="left">
+                  <a>
+                    <img :src="order.coverImg"/>
+                  </a>
+                </div>
+                <ul class="right">
+                  <li>
+                    <a class="text-1">{{order.name}}</a>
+                  </li>
+                  <li class="text-2">{{order.norms}}</li>
+                  <li class="text-3">{{order.price}}</li>
+                  <li class="text-4">
+                    <span class="price">{{order.preferentialPrice}}</span>
+                    <span class="count">x{{order.quantity}}</span>
+                  </li>
+                </ul>
+              </div>
+            </router-link>
+            <!--合计-->
+            <div class="total">
+              共{{item.quantity}}件商品 合计：<span>&yen;{{item.payAmount + item.expressFee}}</span>（含运费￥{{item.expressFee}}.00）
+            </div>
+            <!--操作-->
+            <div class="order-operate">
+              <span @click="requestReturn(item.id)" class="btn">申请退货</span>
+            </div>
+          </div>
+          <!--待收货-->
+          <div v-else-if="item.payStatus === 2">
+            <!--订单号-->
+            <div class="order-num">
+              <span class="id">订单号：{{item.outTradeNo}}</span>
+              <span class="status">已发货</span>
+            </div>
+            <!--订单详情-->
+            <router-link :to="'/order_detail?id='+item.id" v-for="order in item.productList">
+              <div class="order-detail clearfix">
+                <div class="left">
+                  <a>
+                    <img :src="order.coverImg"/>
+                  </a>
+                </div>
+                <ul class="right">
+                  <li>
+                    <a class="text-1">{{order.name}}</a>
+                  </li>
+                  <li class="text-2">{{order.norms}}</li>
+                  <li class="text-3">{{order.price}}</li>
+                  <li class="text-4">
+                    <span class="price">{{order.preferentialPrice}}</span>
+                    <span class="count">x{{order.quantity}}</span>
+                  </li>
+                </ul>
+              </div>
+            </router-link>
+            <!--合计-->
+            <div class="total">
+              共{{item.quantity}}件商品 合计：<span>&yen;{{item.payAmount + item.expressFee}}</span>（含运费￥{{item.expressFee}}.00）
+            </div>
+            <!--操作-->
+            <div class="order-operate">
+              <span @click="extendTheReceiving(item.id)" class="btn">延长收货</span>
+              <span @click="requestReturn(item.id)" class="btn">申请退货</span>
+              <span @click="seaLogistics(item.id)" class="btn">查看物流</span>
+              <span @click="confirmReceipt(item.id)" class="btn">确认收货</span>
+            </div>
+          </div>
+          <!--已收货-->
+          <div v-else-if="item.payStatus === 3">
+            <!--订单号-->
+            <div class="order-num">
+              <span class="id">订单号：{{item.outTradeNo}}</span>
+              <span class="status">已收货</span>
+            </div>
+            <!--订单详情-->
+            <div v-for="(order, index) in item.productList" class="inner evaluate">
+              <router-link :to="'/order_detail?id='+item.id">
+                <div class="order-detail clearfix">
+                  <div class="left">
+                    <a>
+                      <img :src="order.coverImg"/>
+                    </a>
+                  </div>
+                  <ul class="right">
+                    <li>
+                      <a class="text-1">{{order.name}}</a>
+                    </li>
+                    <li class="text-2">{{order.norms}}</li>
+                    <li class="text-3">{{order.price}}</li>
+                    <li class="text-4">
+                      <span class="price">{{order.preferentialPrice}}</span>
+                      <span class="count">x{{order.quantity}}</span>
+                    </li>
+                  </ul>
+                </div>
+              </router-link>
+              <!--合计-->
+              <div class="total" v-if="index == item.productList.length - 1">
+                共{{item.quantity}}件商品 合计：<span>&yen;{{item.payAmount + item.expressFee}}</span>（含运费￥{{item.expressFee}}.00）
+              </div>
+              <!--操作-->
+              <div class="order-operate">
+                <span @click="goEvaluate(order.id)" class="btn">评价</span>
+              </div>
+            </div>
+          </div>
+          <!--交易关闭-->
+          <div v-else-if="item.payStatus === 4">
+            <!--订单号-->
+            <div class="order-num">
+              <span class="id">订单号：{{item.outTradeNo}}</span>
+              <span class="status">交易关闭</span>
+            </div>
+            <!--订单详情-->
+            <router-link :to="'/order_detail?id='+item.id" v-for="order in item.productList">
+              <div class="order-detail clearfix">
+                <div class="left">
+                  <a>
+                    <img :src="order.coverImg"/>
+                  </a>
+                </div>
+                <ul class="right">
+                  <li>
+                    <a class="text-1">{{order.name}}</a>
+                  </li>
+                  <li class="text-2">{{order.norms}}</li>
+                  <li class="text-3">{{order.price}}</li>
+                  <li class="text-4">
+                    <span class="price">{{order.preferentialPrice}}</span>
+                    <span class="count">x{{order.quantity}}</span>
+                  </li>
+                </ul>
+              </div>
+            </router-link>
+            <!--合计-->
+            <div class="total">
+              共{{item.quantity}}件商品 合计：<span>&yen;{{item.payAmount + item.expressFee}}</span>（含运费￥{{item.expressFee}}.00）
+            </div>
+            <!--操作-->
+            <div class="order-operate">
+              <!--<span @click="deleteOrder(item.id)" class="btn">删除订单</span>-->
+            </div>
+          </div>
+          <!--申请退款-->
+          <div v-else-if="item.payStatus === 5">
+            <!--订单号-->
+            <div class="order-num">
+              <span class="id">订单号：{{item.outTradeNo}}</span>
+              <span class="status">申请退货</span>
+            </div>
+            <!--订单详情-->
+            <router-link :to="'/order_detail?id='+item.id" v-for="order in item.productList">
+              <div class="order-detail clearfix">
+                <div class="left">
+                  <a>
+                    <img :src="order.coverImg"/>
+                  </a>
+                </div>
+                <ul class="right">
+                  <li>
+                    <a class="text-1">{{order.name}}</a>
+                  </li>
+                  <li class="text-2">{{order.norms}}</li>
+                  <li class="text-3">{{order.price}}</li>
+                  <li class="text-4">
+                    <span class="price">{{order.preferentialPrice}}</span>
+                    <span class="count">x{{order.quantity}}</span>
+                  </li>
+                </ul>
+              </div>
+            </router-link>
+            <!--合计-->
+            <div class="total">
+              共{{item.quantity}}件商品 合计：<span>&yen;{{item.payAmount + item.expressFee}}</span>（含运费￥{{item.expressFee}}.00）
+            </div>
+            <!--操作-->
+            <div class="order-operate">
+              <span @click="cancelAppli(item.id)" class="btn">取消申请</span>
+            </div>
+          </div>
+          <!--交易完成-->
+          <div v-else-if="item.payStatus === 6">
+            <!--订单号-->
+            <div class="order-num">
+              <span class="id">订单号：{{item.outTradeNo}}</span>
+              <span class="status">交易完成</span>
+            </div>
+            <!--订单详情-->
+            <router-link :to="'/order_detail?id='+item.id" v-for="order in item.productList">
+              <div class="order-detail clearfix">
+                <div class="left">
+                  <a>
+                    <img :src="order.coverImg"/>
+                  </a>
+                </div>
+                <ul class="right">
+                  <li>
+                    <a class="text-1">{{order.name}}</a>
+                  </li>
+                  <li class="text-2">{{order.norms}}</li>
+                  <li class="text-3">{{order.price}}</li>
+                  <li class="text-4">
+                    <span class="price">{{order.preferentialPrice}}</span>
+                    <span class="count">x{{order.quantity}}</span>
+                  </li>
+                </ul>
+              </div>
+            </router-link>
+            <!--合计-->
+            <div class="total">
+              共{{item.quantity}}件商品 合计：<span>&yen;{{item.payAmount + item.expressFee}}</span>（含运费￥{{item.expressFee}}.00）
+            </div>
+            <!--操作-->
+            <div class="order-operate">
+              <!--<span @click="deleteOrder(item.id)" class="btn">删除订单</span>-->
+            </div>
+          </div>
+        </div>
+        <div class="no-data" v-show="anyOrders == false">暂无数据</div>
+      </section>
+
+      <!--待付款列表-->
+      <section v-show="type == 2" class="order-list">
+        <div v-for="(item,index) in obligationList" v-show="anyOrders" class="wrap">
           <!--订单号-->
           <div class="order-num">
             <span class="id">订单号：{{item.outTradeNo}}</span>
@@ -49,7 +320,7 @@
               </div>
               <ul class="right">
                 <li>
-                  <a class="text-1">{{item.productList[0].name}}</a>
+                  <a class="text-1">{{order.name}}</a>
                 </li>
                 <li class="text-2">{{order.norms}}</li>
                 <li class="text-3">{{order.price}}</li>
@@ -70,12 +341,18 @@
             <router-link :to="'/select_pay?id='+item.id"><span class="btn">付款</span></router-link>
           </div>
         </div>
-        <!--待发货-->
-        <div v-else-if="item.payStatus === 1">
+
+        <div class="no-data" v-show="anyOrders == false">暂无数据</div>
+      </section>
+
+      <!--待收货列表-->
+      <section v-show="type == 3" class="order-list">
+        <div v-for="(item,index) in receivingList" v-show="anyOrders" class="wrap">
           <!--订单号-->
           <div class="order-num">
             <span class="id">订单号：{{item.outTradeNo}}</span>
-            <span class="status">待发货</span>
+            <span v-if="item.payStatus === 1" class="status">待发货</span>
+            <span v-else-if="item.payStatus === 2" class="status">已发货</span>
           </div>
           <!--订单详情-->
           <router-link :to="'/order_detail?id='+item.id" v-for="order in item.productList">
@@ -87,7 +364,7 @@
               </div>
               <ul class="right">
                 <li>
-                  <a class="text-1">{{item.productList[0].name}}</a>
+                  <a class="text-1">{{order.name}}</a>
                 </li>
                 <li class="text-2">{{order.norms}}</li>
                 <li class="text-3">{{order.price}}</li>
@@ -103,128 +380,63 @@
             共{{item.quantity}}件商品 合计：<span>&yen;{{item.payAmount + item.expressFee}}</span>（含运费￥{{item.expressFee}}.00）
           </div>
           <!--操作-->
-          <div class="order-operate">
+          <div v-if="item.payStatus === 1" class="order-operate">
             <span @click="requestReturn(item.id)" class="btn">申请退货</span>
           </div>
-        </div>
-        <!--待收货-->
-        <div v-else-if="item.payStatus === 2">
-          <!--订单号-->
-          <div class="order-num">
-            <span class="id">订单号：{{item.outTradeNo}}</span>
-            <span class="status">已发货</span>
-          </div>
-          <!--订单详情-->
-          <router-link :to="'/order_detail?id='+item.id" v-for="order in item.productList">
-            <div class="order-detail clearfix">
-              <div class="left">
-                <a>
-                  <img :src="order.coverImg"/>
-                </a>
-              </div>
-              <ul class="right">
-                <li>
-                  <a class="text-1">{{item.productList[0].name}}</a>
-                </li>
-                <li class="text-2">{{order.norms}}</li>
-                <li class="text-3">{{order.price}}</li>
-                <li class="text-4">
-                  <span class="price">{{order.preferentialPrice}}</span>
-                  <span class="count">x{{order.quantity}}</span>
-                </li>
-              </ul>
-            </div>
-          </router-link>
-          <!--合计-->
-          <div class="total">
-            共{{item.quantity}}件商品 合计：<span>&yen;{{item.payAmount + item.expressFee}}</span>（含运费￥{{item.expressFee}}.00）
-          </div>
-          <!--操作-->
-          <div class="order-operate">
+          <div v-else-if="item.payStatus === 2" class="order-operate">
             <span @click="extendTheReceiving(item.id)" class="btn">延长收货</span>
             <span @click="requestReturn(item.id)" class="btn">申请退货</span>
             <span @click="seaLogistics(item.id)" class="btn">查看物流</span>
             <span @click="confirmReceipt(item.id)" class="btn">确认收货</span>
           </div>
         </div>
-        <!--已收货-->
-        <div v-else-if="item.payStatus === 3">
-          <!--订单号-->
+        <div class="no-data" v-show="anyOrders == false">暂无数据</div>
+      </section>
+
+      <!--待评价列表-->
+      <section v-show="type == 4" class="order-list evaluate">
+        <div v-for="(item,index) in evaluateList" v-show="anyOrders" class="wrap">
           <div class="order-num">
             <span class="id">订单号：{{item.outTradeNo}}</span>
-            <span class="status">已收货</span>
+            <span class="status">交易完成</span>
           </div>
-          <!--订单详情-->
-          <div v-for="(order, index) in item.productList" class="inner evaluate">
-            <router-link :to="'/order_detail?id='+item.id">
-              <div class="order-detail clearfix">
-                <div class="left">
-                  <a>
-                    <img :src="order.coverImg"/>
-                  </a>
+          <div v-for="(order, index) in item.productList" class="inner">
+            <div v-if="order">
+              <router-link :to="'/order_detail?id='+item.id">
+                <div class="order-detail clearfix">
+                  <div class="left">
+                    <a>
+                      <img :src="order.coverImg"/>
+                    </a>
+                  </div>
+                  <ul class="right">
+                    <li>
+                      <a class="text-1">{{order.name}}</a>
+                    </li>
+                    <li class="text-2">{{order.norms}}</li>
+                    <li class="text-3">{{order.price}}</li>
+                    <li class="text-4">
+                      <span class="price">{{order.preferentialPrice}}</span>
+                      <span class="count">x{{order.quantity}}</span>
+                    </li>
+                  </ul>
                 </div>
-                <ul class="right">
-                  <li>
-                    <a class="text-1">{{item.productList[0].name}}</a>
-                  </li>
-                  <li class="text-2">{{order.norms}}</li>
-                  <li class="text-3">{{order.price}}</li>
-                  <li class="text-4">
-                    <span class="price">{{order.preferentialPrice}}</span>
-                    <span class="count">x{{order.quantity}}</span>
-                  </li>
-                </ul>
+              </router-link>
+              <div class="total" v-if="index == item.productList.length - 1">
+                共{{item.quantity}}件商品 合计：<span>&yen;{{item.payAmount + item.expressFee}}</span>（含运费￥{{item.expressFee}}.00）
               </div>
-            </router-link>
-            <!--合计-->
-            <div class="total" v-if="index == item.productList.length - 1">
-              共{{item.quantity}}件商品 合计：<span>&yen;{{item.payAmount + item.expressFee}}</span>（含运费￥{{item.expressFee}}.00）
-            </div>
-            <!--操作-->
-            <div class="order-operate">
-              <span @click="goEvaluate(order.id)" class="btn">评价</span>
+              <div v-if="order.status == 0" class="order-operate">
+                <span @click="goEvaluate(order.id)" class="btn">评价</span>
+              </div>
             </div>
           </div>
         </div>
-        <!--交易关闭-->
-        <div v-else-if="item.payStatus === 4">
-          <!--订单号-->
-          <div class="order-num">
-            <span class="id">订单号：{{item.outTradeNo}}</span>
-            <span class="status">交易关闭</span>
-          </div>
-          <!--订单详情-->
-          <router-link :to="'/order_detail?id='+item.id" v-for="order in item.productList">
-            <div class="order-detail clearfix">
-              <div class="left">
-                <a>
-                  <img :src="order.coverImg"/>
-                </a>
-              </div>
-              <ul class="right">
-                <li>
-                  <a class="text-1">{{item.productList[0].name}}</a>
-                </li>
-                <li class="text-2">{{order.norms}}</li>
-                <li class="text-3">{{order.price}}</li>
-                <li class="text-4">
-                  <span class="price">{{order.preferentialPrice}}</span>
-                  <span class="count">x{{order.quantity}}</span>
-                </li>
-              </ul>
-            </div>
-          </router-link>
-          <!--合计-->
-          <div class="total">
-            共{{item.quantity}}件商品 合计：<span>&yen;{{item.payAmount + item.expressFee}}</span>（含运费￥{{item.expressFee}}.00）
-          </div>
-          <!--操作-->
-          <div class="order-operate">
-            <!--<span @click="deleteOrder(item.id)" class="btn">删除订单</span>-->
-          </div>
-        </div>
-        <!--申请退款-->
-        <div v-else-if="item.payStatus === 5">
+        <div class="no-data" v-show="anyOrders == false">暂无数据</div>
+      </section>
+
+      <!--售后列表-->
+      <section v-show="type == 5" class="order-list">
+        <div v-for="(item,index) in afterList" v-show="anyOrders" class="wrap">
           <!--订单号-->
           <div class="order-num">
             <span class="id">订单号：{{item.outTradeNo}}</span>
@@ -240,7 +452,7 @@
               </div>
               <ul class="right">
                 <li>
-                  <a class="text-1">{{item.productList[0].name}}</a>
+                  <a class="text-1">{{order.name}}</a>
                 </li>
                 <li class="text-2">{{order.norms}}</li>
                 <li class="text-3">{{order.price}}</li>
@@ -257,222 +469,13 @@
           </div>
           <!--操作-->
           <div class="order-operate">
-            <span @click="cancelAppli(item.id)" class="btn">取消申请</span>
+            <!--<span @click="cancelAppli(item.id)" class="btn">取消申请</span>-->
           </div>
         </div>
-        <!--交易完成-->
-        <div v-else-if="item.payStatus === 6">
-          <!--订单号-->
-          <div class="order-num">
-            <span class="id">订单号：{{item.outTradeNo}}</span>
-            <span class="status">交易完成</span>
-          </div>
-          <!--订单详情-->
-          <router-link :to="'/order_detail?id='+item.id" v-for="order in item.productList">
-            <div class="order-detail clearfix">
-              <div class="left">
-                <a>
-                  <img :src="order.coverImg"/>
-                </a>
-              </div>
-              <ul class="right">
-                <li>
-                  <a class="text-1">{{item.productList[0].name}}</a>
-                </li>
-                <li class="text-2">{{order.norms}}</li>
-                <li class="text-3">{{order.price}}</li>
-                <li class="text-4">
-                  <span class="price">{{order.preferentialPrice}}</span>
-                  <span class="count">x{{order.quantity}}</span>
-                </li>
-              </ul>
-            </div>
-          </router-link>
-          <!--合计-->
-          <div class="total">
-            共{{item.quantity}}件商品 合计：<span>&yen;{{item.payAmount + item.expressFee}}</span>（含运费￥{{item.expressFee}}.00）
-          </div>
-          <!--操作-->
-          <div class="order-operate">
-            <!--<span @click="deleteOrder(item.id)" class="btn">删除订单</span>-->
-          </div>
-        </div>
-      </div>
+        <div class="no-data" v-show="anyOrders == false">暂无数据</div>
+      </section>
 
-      <div class="no-data" v-show="anyOrders == false">暂无数据</div>
-    </section>
-
-    <!--待付款列表-->
-    <section v-show="type == 2" class="order-list">
-      <div v-for="(item,index) in obligationList" v-show="anyOrders" class="wrap">
-        <!--订单号-->
-        <div class="order-num">
-          <span class="id">订单号：{{item.outTradeNo}}</span>
-          <span class="status">待付款</span>
-        </div>
-        <!--订单详情-->
-        <router-link :to="'/order_detail?id='+item.id" v-for="order in item.productList">
-          <div class="order-detail clearfix">
-            <div class="left">
-              <a>
-                <img :src="order.coverImg"/>
-              </a>
-            </div>
-            <ul class="right">
-              <li>
-                <a class="text-1">{{item.productList[0].name}}</a>
-              </li>
-              <li class="text-2">{{order.norms}}</li>
-              <li class="text-3">{{order.price}}</li>
-              <li class="text-4">
-                <span class="price">{{order.preferentialPrice}}</span>
-                <span class="count">x{{order.quantity}}</span>
-              </li>
-            </ul>
-          </div>
-        </router-link>
-        <!--合计-->
-        <div class="total">
-          共{{item.quantity}}件商品 合计：<span>&yen;{{item.payAmount + item.expressFee}}</span>（含运费￥{{item.expressFee}}.00）
-        </div>
-        <!--操作-->
-        <div class="order-operate">
-          <span @click="cancalOrder(item.id)" class="btn">取消订单</span>
-          <router-link :to="'/select_pay?id='+item.id"><span class="btn">付款</span></router-link>
-        </div>
-      </div>
-      <div class="no-data" v-show="anyOrders == false">暂无数据</div>
-    </section>
-
-    <!--待收货列表-->
-    <section v-show="type == 3" class="order-list">
-      <div v-for="(item,index) in receivingList" v-show="anyOrders" class="wrap">
-        <!--订单号-->
-        <div class="order-num">
-          <span class="id">订单号：{{item.outTradeNo}}</span>
-          <span v-if="item.payStatus === 1" class="status">待发货</span>
-          <span v-else-if="item.payStatus === 2" class="status">已发货</span>
-        </div>
-        <!--订单详情-->
-        <router-link :to="'/order_detail?id='+item.id" v-for="order in item.productList">
-          <div class="order-detail clearfix">
-            <div class="left">
-              <a>
-                <img :src="order.coverImg"/>
-              </a>
-            </div>
-            <ul class="right">
-              <li>
-                <a class="text-1">{{item.productList[0].name}}</a>
-              </li>
-              <li class="text-2">{{order.norms}}</li>
-              <li class="text-3">{{order.price}}</li>
-              <li class="text-4">
-                <span class="price">{{order.preferentialPrice}}</span>
-                <span class="count">x{{order.quantity}}</span>
-              </li>
-            </ul>
-          </div>
-        </router-link>
-        <!--合计-->
-        <div class="total">
-          共{{item.quantity}}件商品 合计：<span>&yen;{{item.payAmount + item.expressFee}}</span>（含运费￥{{item.expressFee}}.00）
-        </div>
-        <!--操作-->
-        <div v-if="item.payStatus === 1" class="order-operate">
-          <span @click="requestReturn(item.id)" class="btn">申请退货</span>
-        </div>
-        <div v-else-if="item.payStatus === 2" class="order-operate">
-          <span @click="extendTheReceiving(item.id)" class="btn">延长收货</span>
-          <span @click="requestReturn(item.id)" class="btn">申请退货</span>
-          <span @click="seaLogistics(item.id)" class="btn">查看物流</span>
-          <span @click="confirmReceipt(item.id)" class="btn">确认收货</span>
-        </div>
-      </div>
-      <div class="no-data" v-show="anyOrders == false">暂无数据</div>
-    </section>
-
-    <!--待评价列表-->
-    <section v-show="type == 4" class="order-list evaluate">
-      <div v-for="(item,index) in evaluateList" v-show="anyOrders" class="wrap">
-        <div class="order-num">
-          <span class="id">订单号：{{item.outTradeNo}}</span>
-          <span class="status">交易完成</span>
-        </div>
-        <div v-for="(order, index) in item.productList" class="inner">
-          <div v-if="order">
-            <router-link :to="'/order_detail?id='+item.id">
-              <div class="order-detail clearfix">
-                <div class="left">
-                  <a>
-                    <img :src="order.coverImg"/>
-                  </a>
-                </div>
-                <ul class="right">
-                  <li>
-                    <a class="text-1">{{order.name}}</a>
-                  </li>
-                  <li class="text-2">{{order.norms}}</li>
-                  <li class="text-3">{{order.price}}</li>
-                  <li class="text-4">
-                    <span class="price">{{order.preferentialPrice}}</span>
-                    <span class="count">x{{order.quantity}}</span>
-                  </li>
-                </ul>
-              </div>
-            </router-link>
-            <div class="total" v-if="index == item.productList.length - 1">
-              共{{item.quantity}}件商品 合计：<span>&yen;{{item.payAmount + item.expressFee}}</span>（含运费￥{{item.expressFee}}.00）
-            </div>
-            <div v-if="order.status == 0" class="order-operate">
-              <span @click="goEvaluate(order.id)" class="btn">评价</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="no-data" v-show="anyOrders == false">暂无数据</div>
-    </section>
-
-    <!--售后列表-->
-    <section v-show="type == 5" class="order-list">
-      <div v-for="(item,index) in afterList" v-show="anyOrders" class="wrap">
-        <!--订单号-->
-        <div class="order-num">
-          <span class="id">订单号：{{item.outTradeNo}}</span>
-          <span class="status">申请退货</span>
-        </div>
-        <!--订单详情-->
-        <router-link :to="'/order_detail?id='+item.id" v-for="order in item.productList">
-          <div class="order-detail clearfix">
-            <div class="left">
-              <a>
-                <img :src="order.coverImg"/>
-              </a>
-            </div>
-            <ul class="right">
-              <li>
-                <a class="text-1">{{item.productList[0].name}}</a>
-              </li>
-              <li class="text-2">{{order.norms}}</li>
-              <li class="text-3">{{order.price}}</li>
-              <li class="text-4">
-                <span class="price">{{order.preferentialPrice}}</span>
-                <span class="count">x{{order.quantity}}</span>
-              </li>
-            </ul>
-          </div>
-        </router-link>
-        <!--合计-->
-        <div class="total">
-          共{{item.quantity}}件商品 合计：<span>&yen;{{item.payAmount + item.expressFee}}</span>（含运费￥{{item.expressFee}}.00）
-        </div>
-        <!--操作-->
-        <div class="order-operate">
-          <!--<span @click="cancelAppli(item.id)" class="btn">取消申请</span>-->
-        </div>
-      </div>
-      <div class="no-data" v-show="anyOrders == false">暂无数据</div>
-    </section>
+    </div>
 
     <!--弹窗-->
     <transition name="up-win">
@@ -508,10 +511,12 @@
 <script>
   import {con} from "../../assets/js/common";
   import {MessageBox} from "mint-ui"
+  import {Loadmore} from "mint-ui"
 
   export default {
     data() {
       return {
+        scrollMode: "auto",//移动端弹性滚动效果，touch为弹性滚动，auto是非弹性滚动
         type: parseInt(this.$route.query.type),
         allOrderList: [],//交易完成 || 全部订单
         obligationList: [],//待付款
@@ -523,6 +528,9 @@
         pay: false,
         thisRightsAndInterests: "",
         nextRightsAndInterests: "",
+        payStatus: "",
+        orderType: "",
+        pageNo: 1,
       }
     },
     mounted() {
@@ -534,39 +542,33 @@
        * @param type
        */
       getOrderList(type) {
-        let payStatus;
-        let orderType;
         switch (type) {
           case 1://全部订单
-            payStatus = null;
-            orderType = "allOrderList";
-            this.requestOrder(payStatus, orderType);
+            this.payStatus = null;
+            this.orderType = "allOrderList";
             break;
           case 2://待付款
-            payStatus = 0;
-            orderType = "obligationList";
-            this.requestOrder(payStatus, orderType);
+            this.payStatus = 0;
+            this.orderType = "obligationList";
             break;
           case 3://待收货
-            payStatus = 2;
-            orderType = "receivingList";
-            this.requestOrder(payStatus, orderType);
+            this.payStatus = 2;
+            this.orderType = "receivingList";
             break;
           case 4://待评价
-            payStatus = 3;
-            orderType = "evaluateList";
-            this.requestOrder(payStatus, orderType);
+            this.payStatus = 3;
+            this.orderType = "evaluateList";
             break;
           case 5://售后
-            payStatus = 5;
-            orderType = "afterList";
-            this.requestOrder(payStatus, orderType);
+            this.payStatus = 5;
+            this.orderType = "afterList";
             break;
         }
+        this.requestOrder(this.payStatus, this.orderType);
       },
-      requestOrder(payStatus, orderType) {
+      requestOrder(payStatus, orderType, pageNo = 1) {
         if (payStatus === null) {
-          con.get("/api/order/list?rows=20", (response) => {
+          con.get("/api/order/list?rows=20&pageNo=" + pageNo, (response) => {
             if (response.result === 1) {
               this.hasOrder(response.data, orderType);
             } else {
@@ -574,7 +576,7 @@
             }
           });
         } else {
-          con.get("/api/order/list?payStatus=" + payStatus, (response) => {
+          con.get("/api/order/list?rows=20&payStatus=" + payStatus, (response) => {
             if (response.result === 1) {
               this.hasOrder(response.data, orderType);
             } else {
@@ -655,7 +657,7 @@
       cancelAppli(id) {
         //todo 取消申请退货
       },
-      messageBox(id, title, msg, url, toast, type) {
+      messageBox(id, title, msg, url, toast) {
         MessageBox({
           title: title,
           message: msg,
@@ -683,6 +685,18 @@
       },
       closeWindow() {
         this.pay = false;
+      },
+      loadTop() {
+        setTimeout(() => {
+          this.$refs.loadmore.onTopLoaded();
+          con.toast("刷新成功")
+        }, 1000)
+      },
+      loadBottom() {
+        console.log("上拉")
+      },
+      handleBottomChange() {
+        con.toast("上拉加载更多")
       }
     }
   }
@@ -768,6 +782,9 @@
     text-align: center;
     padding-top: 100/75rem;
     color: #333;
+    width: 100%;
+    height: 80vh;
+    font-size: .32rem;
   }
 
   .evaluate {
@@ -776,6 +793,7 @@
     }
   }
 
+  /*.mint-loadmore {*/
   .wrap {
     width: 100%;
     min-height: 5.733333rem;
@@ -919,13 +937,15 @@
 
   }
 
+  /*}*/
+
   /*弹窗*/
   .popup {
     width: 100%;
+    max-width: 600px;
     height: 100vh;
     position: fixed;
     top: 0;
-    left: 0;
     background: rgba(0, 0, 0, .5);
     z-index: 10;
 

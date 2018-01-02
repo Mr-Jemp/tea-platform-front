@@ -55,28 +55,31 @@
     </mt-actionsheet>
 
     <!--积分弹出框-->
-    <div class="integral-wrap" v-show="integralShow">
-      <div class="inner">
-        <div class="close-box">
-          <div class="close" @click="closeIntegral"></div>
-        </div>
-        <div class="top">
-          <h5>积分获得方法</h5>
-          <ul>
-            <li>1、每日签到可获得积分</li>
-            <li>2、购买商品可获得积分</li>
-          </ul>
-        </div>
-        <div class="bottom">
-          <h5>积分用途</h5>
-          <ul>
-            <li>1、兑换礼品</li>
-            <li>2、抵扣运费</li>
-            <li>3、购买部分商品可用积分抵扣</li>
-          </ul>
+    <transition name="fade">
+      <div class="integral-wrap" v-show="integralShow">
+        <div class="inner">
+          <div class="close-box">
+            <div class="close" @click="closeIntegral"></div>
+          </div>
+          <div class="top">
+            <h5>积分获得方法</h5>
+            <ul>
+              <li>1、每日签到可获得积分</li>
+              <li>2、购买商品可获得积分</li>
+            </ul>
+          </div>
+          <div class="bottom">
+            <h5>积分用途</h5>
+            <ul>
+              <li>1、兑换礼品</li>
+              <li>2、抵扣运费</li>
+              <li>3、购买部分商品可用积分抵扣</li>
+            </ul>
+          </div>
         </div>
       </div>
-    </div>
+    </transition>
+
   </div>
 </template>
 
@@ -220,6 +223,26 @@
 
 <style scoped lang="less">
 
+  .fade-enter {
+    opacity: 0;
+  }
+
+  .fade-enter-active, .fade-leave-active, .scale-enter-active, .scale-leave-active {
+    transition: .5s;
+  }
+
+  .fade-enter-to {
+    opacity: 1;
+  }
+
+  .fade-leave {
+    opacity: 1;
+  }
+
+  .fade-leave-to {
+    opacity: 0;
+  }
+
   #personal {
     width: 100%;
     min-height: 100vh;
@@ -325,9 +348,9 @@
       width: 1.28rem;
       height: 1.28rem;
     }
-    .list2{
-      .item{
-        a.grade{
+    .list2 {
+      .item {
+        a.grade {
           display: block;
           width: 100%;
           height: 100%;
@@ -339,10 +362,10 @@
 
   .integral-wrap {
     width: 100%;
+    max-width: 600px;
     height: 100vh;
     position: fixed;
     top: 0;
-    left: 0;
     background: rgba(0, 0, 0, .5);
     z-index: 12;
     .inner {

@@ -41,8 +41,17 @@
         <li>
           <p class="text">{{shopInfo.name}}</p>
         </li>
-        <li>
+
+        <li v-if="shopInfo.saleType !== 6 && shopInfo.saleType !== 7">
           <span class="price">&yen;{{shopInfo.preferentialPrice}}</span>
+          <span class="original">&yen;{{shopInfo.price}}</span>
+        </li>
+        <li v-if="shopInfo.saleType == 6">
+          <span class="price">&yen;{{shopInfo.preferentialPrice}} + {{shopInfo.discount2}}积分</span>
+          <span class="original">&yen;{{shopInfo.price}}</span>
+        </li>
+        <li v-if="shopInfo.saleType == 7">
+          <span class="price">{{shopInfo.discount2}}积分</span>
           <span class="original">&yen;{{shopInfo.price}}</span>
         </li>
         <li>
@@ -118,7 +127,7 @@
           </a>
         </li>
         <li>
-          <a @click="buy">加入购物车</a>
+          <a @click="buy('car')">加入购物车</a>
         </li>
         <li>
           <a @click="buy">立即购买</a>
@@ -214,16 +223,27 @@
               <div class="left">购买数量</div>
               <div class="right">
                 <span @click="minusCount" class="minus">-</span>
-                <span class="num">{{buyCount}}</span>
+                <!--<span class="num">{{buyCount}}</span>-->
+                <input type="number" v-model="buyCount">
                 <span @click="addCount" class="add">+</span>
               </div>
             </div>
 
-            <div class="btn clearfix">
+            <div v-if="isBtn" class="btn clearfix">
               <div @click="addToCar" class="add-car">加入购物车</div>
               <div class="buy">
                 <a @click="purchaseNow" v-if="isLogin == true">立即购买</a>
                 <a v-else @click="goBuy">立即购买</a>
+              </div>
+            </div>
+            <div v-else class="btn clearfix">
+              <div v-if="isCar" class="buy-2">
+                <a @click="purchaseNow" v-if="isLogin == true">确定</a>
+                <a v-else @click="goBuy">确定</a>
+              </div>
+              <div v-else class="buy-2">
+                <a @click="addToCar" v-if="isLogin == true">确定</a>
+                <a v-else @click="goBuy">确定</a>
               </div>
             </div>
 
@@ -249,6 +269,8 @@
         type: 1,
         share: false,
         argument: false,
+        isBtn: false,
+        isCar: false,
         details: "",
         shopInfo: {//商品信息
           name: "",
@@ -258,6 +280,8 @@
           discount: "",
           feeReachFree: "",
           coverImg: "",
+          saleType: "",
+          discount2: "",
         },
         //一级列表
         firstList: [],
@@ -286,9 +310,6 @@
         temp: [],
         serverPhone: "",
       }
-    },
-    watch: {
-
     },
     mounted() {
       this.getLoginStatus();
@@ -364,8 +385,10 @@
               this.shopInfo.price = response.data.price;
               this.shopInfo.fee = response.data.expressFee.fee;
               this.shopInfo.discount = response.data.expressFee.discount;
+              this.shopInfo.discount2 = response.data.discount;
               this.shopInfo.feeReachFree = response.data.expressFee.feeReachFree;
               this.shopInfo.coverImg = response.data.coverImg;
+              this.shopInfo.saleType = response.data.saleType;
               if (response.data.allFirstTypes.length === 0) {//不是衣服
                 this.firstList = response.data.allSecondTypes;
                 this.ifClothes = false;
@@ -392,10 +415,31 @@
         }
       },
       /**
+       * 获取默认选中商品
+       */
+      getDefaultShop() {
+        this.firstStand = this.firstList[0].secondType || this.firstList[0].firstType;
+        if (this.clothesList[0]) {
+          this.secondStand = this.clothesList[0].secondType || "";
+        }
+        let url = location.href;
+        if (url.indexOf("?") !== -1) {
+          let id = url.split("?")[1].split("=")[1];
+          con.get("/api/product/standard?id=" + id + "&secondType=" + this.firstStand, (response) => {
+            this.firstId = response.data.secondTypes[0].id;
+            this.quantityShow = response.data.secondTypes[0].quantityShow;
+          })
+        }
+        $(".two .second li").eq(0).addClass("active");
+        $("#select").html("已选择 " + this.firstStand);
+      },
+      /**
        * 选择商品规格
        */
       selectType() {
         this.argument = true;
+        this.isBtn = true;
+        this.getDefaultShop();
       },
       cancal(e) {
         if ($(".footer-2")[0] === e.target) {
@@ -476,7 +520,11 @@
         if (this.buyCount < this.quantityShow) {
           this.buyCount++;
         } else {
-          con.toast("库存不足")
+          if(this.shopInfo.saleType === 2){
+            this.buyCount++;
+          }else{
+            con.toast("亲，库存好像不够了呢/(ㄒoㄒ)/~~");
+          }
         }
       },
       minusCount() {
@@ -486,9 +534,15 @@
           con.toast("亲，至少购买一件吧")
         }
       },
-      buy() {
-//        con.toast("请选择产品类型", "center");
+      buy(a) {
+        if (a === "car") {
+          this.isCar = false;
+        } else {
+          this.isCar = true;
+        }
         this.argument = true;
+        this.isBtn = false;
+        this.getDefaultShop();
       },
       /**
        * 加入购物车
@@ -497,23 +551,14 @@
         if (this.isLogin) {
           if (this.firstStand) {
             if (this.quantityShow > 0) {
-              let shopCar = {
-                id: this.firstId,
-                src: this.shopInfo.coverImg,
-                name: this.shopInfo.name,
-                original: this.shopInfo.preferentialPrice,
-                price: this.shopInfo.price,
-                count: this.buyCount,
-                firstStand: this.firstStand,
-                secondStand: this.secondStand,
-                pid: this.pid,
-                fee: this.shopInfo.fee,
-              };
-              con.addgood(shopCar.id, shopCar.src, shopCar.name, shopCar.original, shopCar.price, shopCar.count, shopCar.firstStand, shopCar.secondStand, shopCar.pid, this.shopInfo.fee);
-              con.toast("添加购物车成功");
-              this.argument = false;
+              this.carFn();
             } else {
-              con.toast("库存不足,去看看其他商品吧");
+              if(this.shopInfo.saleType === 2){
+                //限时商品库存为零，但不限制购买
+                this.carFn();
+              }else{
+                con.toast("亲，库存好像不够了呢/(ㄒoㄒ)/~~");
+              }
             }
           } else {
             con.toast("请选择商品规格");
@@ -525,6 +570,23 @@
           }, 1000)
         }
       },
+      carFn(){
+        let shopCar = {
+          id: this.firstId,
+          src: this.shopInfo.coverImg,
+          name: this.shopInfo.name,
+          original: this.shopInfo.preferentialPrice,
+          price: this.shopInfo.price,
+          count: this.buyCount,
+          firstStand: this.firstStand,
+          secondStand: this.secondStand,
+          pid: this.pid,
+          fee: this.shopInfo.fee,
+        };
+        con.addgood(shopCar.id, shopCar.src, shopCar.name, shopCar.original, shopCar.price, shopCar.count, shopCar.firstStand, shopCar.secondStand, shopCar.pid, this.shopInfo.fee);
+        con.toast("添加购物车成功");
+        this.argument = false;
+      },
       /**
        * 立即购买
        */
@@ -535,7 +597,13 @@
               + "&firstStand=" + this.firstStand + "&secondStand=" + this.secondStand + "&firstStandId=" + this.firstId + "&repertory=" + this.quantityShow + "&original="
               + this.shopInfo.price + "&price=" + this.shopInfo.preferentialPrice + "&pid=" + this.pid);
           } else {
-            con.toast("库存不足,去看看其他商品吧");
+            if(this.shopInfo.saleType === 2){
+              this.$router.push("/confirm_order?id=" + this.firstId + "&count=" + this.buyCount + "&name=" + this.shopInfo.name
+                + "&firstStand=" + this.firstStand + "&secondStand=" + this.secondStand + "&firstStandId=" + this.firstId + "&repertory=" + this.quantityShow + "&original="
+                + this.shopInfo.price + "&price=" + this.shopInfo.preferentialPrice + "&pid=" + this.pid);
+            }else{
+              con.toast("亲，库存好像不够了呢/(ㄒoㄒ)/~~");
+            }
           }
         } else {
           con.toast("请选择商品规格");
@@ -577,8 +645,8 @@
                   return obj;
                 });
                 this.clothesList.map(obj => {//将查询出来的库存和id赋给clothesList
-                  this.temp.forEach((value,index) => {
-                    if(obj.secondType === value.secondType){
+                  this.temp.forEach((value, index) => {
+                    if (obj.secondType === value.secondType) {
                       obj.id = value.id;
                       obj.quantityShow = value.quantityShow;
                     }
@@ -970,9 +1038,9 @@
   /*商品详情页底部导航按钮*/
   .foot-nav {
     width: 100%;
+    max-width: 600px;
     height: 1.173333rem;
     position: fixed;
-    left: 0;
     bottom: 0;
     border-top: 1px solid #e5e5e5;
     ul {
@@ -1027,11 +1095,11 @@
   /*弹出框*/
   .footer {
     width: 100%;
+    max-width: 600px;
     height: 100vh;
     background: rgba(0, 0, 0, .5);
     position: fixed;
     top: 0;
-    left: 0;
     z-index: 6666;
 
     /*公共*/
@@ -1067,10 +1135,10 @@
     /*分享*/
     .share {
       width: 100%;
+      max-width: 600px;
       height: 5.56rem;
       background: #fff;
       position: fixed;
-      left: 0;
       bottom: 0;
       border-top-left-radius: 0.133333rem;
       -webkit-border-top-left-radius: 0.133333rem;
@@ -1158,11 +1226,11 @@
 
   .footer-2 {
     width: 100%;
+    max-width: 600px;
     height: 100vh;
     background: rgba(0, 0, 0, .5);
     position: fixed;
     top: 0;
-    left: 0;
     z-index: 666;
 
     /*公共*/
@@ -1193,15 +1261,26 @@
           line-height: 1.173333rem;
         }
       }
+      .buy-2 {
+        a {
+          display: block;
+          width: 100%;
+          height: 100%;
+          background: #C63535;
+          color: #fff;
+          text-align: center;
+          line-height: 1.173333rem;
+        }
+      }
     }
 
     /*选择参数*/
     .arguments {
       width: 100%;
+      max-width: 600px;
       height: 12rem;
       background: #fff;
       position: fixed;
-      left: 0;
       bottom: 0;
       .one {
         width: 100%;
@@ -1307,6 +1386,10 @@
             background: #ccc4a6;
             border-radius: 0.066666rem;
             -webkit-border-radius: 0.066666rem;
+          }
+          input[type="number"] {
+            width: 40/75rem;
+            margin-left: 20/75rem;
           }
           .num {
             font-size: 0.346666rem;

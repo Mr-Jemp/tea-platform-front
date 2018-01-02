@@ -9,6 +9,7 @@
     </header>
 
     <section class="content">
+      <div class="no-content" v-if="!!productInfo.productList">暂无数据</div>
 
       <ul class="shop-list clearfix">
         <li v-for="item in productInfo.productList">
@@ -215,6 +216,12 @@
 
       }
     }
+  }
+  .no-content{
+    text-align: center;
+    padding-top: 2.66666667rem;
+    font-size: 0.35rem;
+    color: #333;
   }
 
 </style>

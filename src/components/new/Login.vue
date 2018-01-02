@@ -12,7 +12,7 @@
     <section class="content">
       <div class="phone">
         <i class="icon-phone"></i>
-        <input v-model="mobile" type="text" placeholder="请输入11位的手机号码"/>
+        <input v-model="mobile" type="number" placeholder="请输入11位的手机号码"/>
         <i class="clear" @click="clear"></i>
       </div>
 
@@ -82,7 +82,7 @@
       getCode(e) {//获取验证码
         if (!$(e.target).attr("disabled")) {
           con.get("/api/mobile/code?mobile=" + this.mobile, (response) => {
-            if (response.data.result === 1) {
+            if (response.result === 1) {
               let countDown = 60;
               let timer = setInterval(function () {
                 if (countDown >= 1) {

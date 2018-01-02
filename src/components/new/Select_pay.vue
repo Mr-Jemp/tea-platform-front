@@ -137,8 +137,8 @@
        * 支付宝支付
        */
       alipay() {
-        location.href = "http://tea.51feijin.com/admin/alipay/pay?id=" + this.$route.query.id + "&userId=" + userId
-      }
+        location.href = "http://tea.51feijin.com/admin/alipay/pay?id=" + this.$route.query.id + "&userId=" + userId;
+      },
     }
   }
 </script>

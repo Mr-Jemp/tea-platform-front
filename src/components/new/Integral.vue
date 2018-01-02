@@ -11,7 +11,7 @@
     <section class="content">
 
       <ul class="shop-list clearfix">
-        <li v-if="productInfo.productList.length >= 0" v-for="item in productInfo.productList">
+        <li v-if="productInfo.productList" v-for="item in productInfo.productList">
           <router-link :to="'/details?id=' + item.id">
             <img :src="item.coverImg"/>
             <span class="shop-text">{{item.name}}</span>
@@ -20,7 +20,7 @@
             </span>
           </router-link>
         </li>
-        <div v-if="productInfo.productList.length == 0">暂无数据</div>
+        <div v-if="productInfo.productList && productInfo.productList.length == 0">暂无数据</div>
       </ul>
 
     </section>

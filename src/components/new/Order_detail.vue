@@ -462,11 +462,11 @@
 
   .footer {
     width: 100%;
+    max-width: 600px;
     height: 1.293333rem;
     padding: 0 0.4rem;
     background: #fff;
     position: fixed;
-    left: 0;
     bottom: 0;
     line-height: 1.293333rem;
     text-align: right;

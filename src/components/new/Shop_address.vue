@@ -118,6 +118,7 @@
             }
           }else{
             con.toast(response.msg);
+            this.$router.push("/login")
           }
         })
       },
@@ -179,6 +180,7 @@
           this.$router.push("/compile");
         }else{
           con.toast("请先登录");
+          this.$router.push("/login");
         }
       },
       /**
@@ -325,6 +327,7 @@
   }
   .footer{
     width: 100%;
+    max-width: 600px;
     height: 1.173333rem;
     background: #c63535;
     padding: 0 0.4rem;
@@ -355,10 +358,10 @@
 /*弹窗*/
 .popup{
   width: 100%;
+  max-width: 600px;
   height: 100vh;
   position: fixed;
   top: 0;
-  left: 0;
   background: rgba(0,0,0,.5);
   z-index: 10;
 
