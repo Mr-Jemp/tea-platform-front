@@ -180,6 +180,7 @@
         discountUse: "",
         orderId: "",
         userDiscount: "",
+        disable: true,
       }
     },
     computed: {
@@ -361,26 +362,34 @@
        * 提交订单
        */
       sumbitOrder() {
-        if (this.isLogin && this.hasAddress) {
-          let url = window.location.href;
-          if (url.indexOf("?") !== -1) {//单品购买
-            let obj1 = {};
-            obj1.id = this.buyShop.firstStandId;
-            obj1.quantity = this.buyShop.count;
-            this.getDiscount(obj1);
-          } else {//购物车
-            let obj2;
-            let carShop = [];
-            for (let i = 0; i < this.carList.length; i++) {
-              obj2 = {};
-              obj2["id"] = this.carList[i].id;
-              obj2["quantity"] = this.carList[i].count;
-              carShop.push(obj2);
+        if (this.disable) {
+          this.disable = false;
+          if (this.isLogin && this.hasAddress) {
+            let url = window.location.href;
+            if (url.indexOf("?") !== -1) {//单品购买
+              let obj1 = {};
+              obj1.id = this.buyShop.firstStandId;
+              obj1.quantity = this.buyShop.count;
+              this.getDiscount(obj1);
+            } else {//购物车
+              let obj2;
+              let carShop = [];
+              for (let i = 0; i < this.carList.length; i++) {
+                obj2 = {};
+                obj2["id"] = this.carList[i].id;
+                obj2["quantity"] = this.carList[i].count;
+                carShop.push(obj2);
+              }
+              this.getDiscount(carShop);
+              setTimeout(() => {
+                this.disable = true;
+              }, 500)
             }
-            this.getDiscount(carShop);
+          } else {
+            con.toast("请填写收货地址", "center");
           }
         } else {
-          con.toast("请填写收货地址", "center");
+          con.toast("请勿重复提交");
         }
       },
       requestPost(discountUse, product) {
@@ -469,7 +478,7 @@
             })
           });
         } catch (e) {
-          
+
         }
       }
     }
