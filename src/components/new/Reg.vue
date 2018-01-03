@@ -19,8 +19,7 @@
       <div class="verify">
         <i class="lock"></i>
         <input type="text" placeholder="请输入验证码" v-model="mobileCode"/>
-        <span v-if="hasGetCode" class="get-code" @click="getCode($event)">获取验证码</span>
-        <span v-else class="get-code" disabled @click="getCode($event)">获取验证码</span>
+        <span class="get-code" @click="getCode($event)">获取验证码</span>
       </div>
 
       <div class="invite">
@@ -69,22 +68,28 @@
        * @param e 点击的元素
        */
       getCode(e) {
-        if (!$(e.target).attr("disabled")) {
-          con.get("/api/mobile/code?mobile=" + this.mobile, (response) => {
-            if (response.result === 1) {
-              let countDown = 60;
-              let timer = setInterval(function () {
-                if (countDown >= 1) {
-                  countDown--;
-                  e.target.innerHTML = countDown + "s后获取";
-                } else {
-                  e.target.innerHTML = "重新获取验证码";
-                  clearInterval(timer);
-                }
-              }, 1000)
-            }
-          })
-        } else {
+        if(this.hasGetCode){
+          if($(e.target).attr("disabled")){
+            console.log("请勿重复点击");
+          }else{
+            $(e.target).attr("disabled",true)
+            con.get("/api/mobile/code?mobile=" + this.mobile, (response) => {
+              if (response.result === 1) {
+                let countDown = 60;
+                let timer = setInterval(function () {
+                  if (countDown >= 1) {
+                    countDown--;
+                    e.target.innerHTML = countDown + "s后获取";
+                  } else {
+                    e.target.innerHTML = "重新获取验证码";
+                    clearInterval(timer);
+                    $(e.target).removeAttr("disabled");
+                  }
+                }, 1000)
+              }
+            })
+          }
+        }else{
           con.toast("请输入正确的手机号码");
         }
       },
