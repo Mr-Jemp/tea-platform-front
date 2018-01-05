@@ -334,7 +334,6 @@
     height:100vh;
     position: fixed;
     top: 0;
-    left: 0;
     background: rgba(0,0,0,.5);
     z-index: 12;
     .inner{

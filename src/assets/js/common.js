@@ -57,6 +57,7 @@ let con = {
    * @param firstStand  当前商品一级规格
    * @param secondStand 衣服二级规格
    * @param pid 父级id
+   * @param fee 运费
    */
   addgood(id, src, name, original, price, count, firstStand, secondStand, pid, fee) {//在界面渲染的时候已经把商品信息参数整合到自己的函数中了
     let contact = new Object();//单个商品的对象，暂时介质

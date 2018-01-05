@@ -39,9 +39,6 @@
   export default {
     name: 'nav',
     props: ['current'],
-    data() {
-      return {}
-    }
   }
 </script>
 
@@ -53,6 +50,7 @@
     width: 100%;
     height: 98/75rem;
     background-color: #fff;
+    max-width: 600px;
     ul {
       display: flex;
       height: 100%;

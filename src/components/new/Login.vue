@@ -28,7 +28,7 @@
     </section>
 
     <!--第三方登录-->
-    <!--<footer class="footer">
+    <footer class="footer">
       <ul class="footer-ul">
         <li></li>
         <li>第三方登录</li>
@@ -36,23 +36,22 @@
       </ul>
       <ul class="thirdparty">
         <li>
-          <router-link to="/"><img src="../../assets/web/btn_QQ.png" alt=""></router-link>
+          <a><img src="../../assets/web/btn_QQ.png" alt=""></a>
+        </li>
+        <li @click="weChatLogin">
+          <a><img src="../../assets/web/btn_wechat.png" alt=""></a>
         </li>
         <li>
-          <router-link to="/"><img src="../../assets/web/btn_wechat.png" alt=""></router-link>
-        </li>
-        <li>
-          <router-link to="/"><img src="../../assets/web/btn_weibo.png" alt=""></router-link>
+          <a><img src="../../assets/web/btn_weibo.png" alt=""></a>
         </li>
       </ul>
-    </footer>-->
+    </footer>
   </div>
 </template>
 
 <script>
   import {con} from "../../assets/js/common"
   import $ from 'jquery'
-  import {Toast} from 'mint-ui'
 
   let self;
 
@@ -77,13 +76,25 @@
     created() {
       self = this;
     },
+    mounted() {
+      this.thirdpartyLogin(location.href);
+      var startHeight = document.body.clientHeight;
+
+      window.onresize = function () {//防止在安卓上打开会把底部固定定位元素挤上来
+        if (document.body.clientHeight < startHeight) {
+          document.getElementsByClassName("footer")[0].style.display = "none";
+        } else {
+          document.getElementsByClassName("footer")[0].style.display = "block";
+        }
+      }
+    },
     methods: {
       getCode(e) {//获取验证码
-        if(this.hasGetCode){
-          if($(e.target).attr("disabled")){
+        if (this.hasGetCode) {
+          if ($(e.target).attr("disabled")) {
             console.log('请勿重复点击');
-          }else{
-            $(e.target).attr("disabled","disabled");
+          } else {
+            $(e.target).attr("disabled", "disabled");
             con.get("/api/mobile/code?mobile=" + this.mobile, (response) => {
               if (response.result === 1) {
                 let countDown = 60;
@@ -99,25 +110,16 @@
                 }, 1000)
               }
             })
-            setTimeout(()=>{
-
-            },60000)
           }
-        }else {
-          con.toast("请输入正确的手机号码");
-        }
-        if ($(e.target).attr("disabled")) {
-//          con.toast("请输入正确的手机号码");
-          /**/
         } else {
-          console.log($(e.target).attr("disabled"))
+          con.toast("请输入正确的手机号码");
         }
       },
       login() {
         if (this.mobile.length === 0) {
           con.toast("请输入手机号码");
         } else {
-          if(this.mobile.trim().length === 11){
+          if (this.mobile.trim().length === 11) {
             if (this.hasGetCode) {
               if (this.mobileCode.length === 0) {
                 con.toast("请输入验证码");
@@ -145,22 +147,61 @@
                 }
               }
             }
-          }else{
+          } else {
             con.toast("手机号码有误，请重新输入")
           }
         }
       },
       clear() {//清空输入框的值
         this.mobile = "";
+      },
+      weChatLogin() {
+        location.href = "http://tea.51feijin.com/admin/wechat/userInfo";
+      },
+      /**
+       * 第三方登录
+       * @param url
+       */
+      thirdpartyLogin(url) {
+        if (url.indexOf("?") != -1) {
+          let obj = con.urlToObj(url);
+          let username = obj.username;
+          let nickname = obj.nickname;
+          let headerImg = obj.headerImg;
+          let province = obj.province;
+          let city = obj.city;
+          let source = obj.source;
+
+          con.post("/api/security/authorizationLogin", {
+            "username": username,
+            "nickname": nickname,
+            "headerImg": headerImg,
+            "province": province,
+            "city": city,
+            "source": source
+          }, (response) => {
+            if (response.result === 1) {
+              con.toast("登陆成功");
+              this.$router.replace("/me");
+            } else if (response.result === -1) {
+              con.toast(response.msg);
+            } else if (response.result === -2) {
+              con.toast(response.msg);
+              this.$router.push("/binding?username=" + username + "&nickname=" + nickname + "&headerImg=" + headerImg +
+                "&province=" + province + "&city=" + city + "&source=" + source);
+            }
+          })
+
+        }
       }
-    }
-  }
+    },
+  };
 </script>
 
 <style scoped lang="less">
   #login {
     width: 100%;
-    height: 100vh;
+    min-height: 100vh;
     background: url(../../assets/web/bg.png) 0 0 no-repeat;
     background-size: cover;
   }
@@ -252,10 +293,11 @@
 
   .footer {
     width: 100%;
-    position: absolute;
+    position: fixed;
     bottom: 80/75rem;
+    max-width: 600px;
     .footer-ul {
-      width: 535/75rem;
+      width: 545/75rem;
       margin: 0 auto 70/75rem;
       display: flex;
       align-items: center;

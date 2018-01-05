@@ -456,11 +456,11 @@
 
   .up-window-wrap{
     width: 100%;
+    max-width: 600px;
     height: 100vh;
     background: rgba(0,0,0,.5);
     position: fixed;
     top: 0;
-    left: 0;
     z-index: 1000;
     .up-window-inner{
       width: 540/75rem;

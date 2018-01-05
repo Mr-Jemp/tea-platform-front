@@ -381,7 +381,7 @@
           </div>
           <!--操作-->
           <div v-if="item.payStatus === 1" class="order-operate">
-            <span @click="requestReturn(item.id)" class="btn">申请退货</span>
+            <!--<span @click="requestReturn(item.id)" class="btn">申请退货</span>-->
           </div>
           <div v-else-if="item.payStatus === 2" class="order-operate">
             <span @click="extendTheReceiving(item.id)" class="btn">延长收货</span>

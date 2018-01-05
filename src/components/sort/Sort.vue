@@ -28,11 +28,13 @@
 
       <div class="right">
         <!--头部导航-->
-        <ul class="nav">
-          <li v-for="(item, index) in catagoryList">
-            <a :class="{'active':type === index}" @click="changeType(index)">{{item.catagory}}</a>
-          </li>
-        </ul>
+        <div class="nav-wrap">
+          <ul class="nav">
+            <li v-for="(item, index) in catagoryList">
+              <a :class="{'active':type === index}" @click="changeType(index)">{{item.catagory}}</a>
+            </li>
+          </ul>
+        </div>
 
         <!--日期导航-->
         <div v-show="thirdShow" class="date-nav">
@@ -55,7 +57,7 @@
               <span class="price">&yen;{{item.preferentialPrice}}</span>
             </router-link>
           </li>
-          <div v-if="list.length<=0">暂无数据</div>
+          <div v-if="getData">暂无数据</div>
         </ul>
 
       </div>
@@ -83,7 +85,8 @@
         id: "",
         secondId: "",
         thirdId: "",
-        pageNo: 1
+        pageNo: 1,
+        getData: false,
       }
     },
     mounted() {
@@ -94,6 +97,9 @@
         con.get("/api/product/classify ", (response) => {
           if (response.result === 1) {
             this.list = response.data.productList;
+            if(this.list.length === 0){
+              this.getData = true;
+            }
             this.catagoryList = response.data.fatherCatagoryList;
             this.id = response.data.fatherCatagoryList[0].id;
             this.childList = response.data.childCatagoryList;
@@ -320,19 +326,29 @@
     .right {
       width: 8rem;
       float: right;
+      .nav-wrap{
+        overflow-x: scroll;
+        &::-webkit-scrollbar{
+          display: none;
+        }
+      }
       .nav {
-        width: 100%;
         height: 1.293333rem;
         border-bottom: 1px solid #e5e5e5;
         display: flex;
         display: -webkit-flex;
-        justify-content: space-between;
+        overflow-x: scroll;
+        overflow-y: hidden;
+        &::-webkit-scrollbar{
+          display: none;
+        }
         li {
+          flex: 1;
           width: 2.666666rem;
           height: 100%;
           a {
             display: block;
-            width: 100%;
+            width: 2.666666rem;
             height: 100%;
             padding: 0.466666rem 0.5rem;
             text-align: center;

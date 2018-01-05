@@ -516,13 +516,13 @@
 
   .close-count {
     width: 100%;
+    max-width: 600px;
     height: 1.173333rem;
     background: #fff;
-    padding: 0 0.4rem;
+    padding: 0 0 0 0.4rem;
     position: fixed;
     bottom: 1.306666rem;
     border: 1px solid #e3e5e9;
-    left: 0;
 
     .check {
       width: 1.4rem;
@@ -559,7 +559,7 @@
 
     .count {
       position: absolute;
-      left: 7.066666rem;
+      right: 0;
       width: 2.933333rem;
       height: 100%;
       text-align: center;

@@ -164,7 +164,7 @@
               <li>
                 <router-link to="">
                   <i><img class="weichat" src="../../assets/web/icon_share_wechat.png"/></i>
-                  <span class="text">新浪微博</span>
+                  <span class="text">微信</span>
                 </router-link>
               </li>
             </ul>

@@ -296,8 +296,13 @@
       height: 199/75rem;
       display: flex;
       margin-bottom: 3px;
+      overflow-x: scroll;
+      &::-webkit-scrollbar{
+        display: none;
+      }
       li {
         flex: 1;
+        width: 244/75rem;
         margin-right: 4px;
         background-color: #fff;
 

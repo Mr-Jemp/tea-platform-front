@@ -162,7 +162,10 @@
       width: 100%;
       height: 100%;
       display: flex;
-      justify-content: flex-start;
+      overflow-x: scroll;
+      &::-webkit-scrollbar{
+        display: none;
+      }
 
       li {
         width: 3.333333rem;
@@ -171,7 +174,7 @@
         line-height: 1.066666rem;
         a {
           display: block;
-          width: 100%;
+          width: 3.333333rem;
           height: 100%;
           line-height: 1.066666rem;
         }
@@ -202,11 +205,10 @@
 
     .shop-list {
       width: 100%;
-
       .item {
         float: left;
         width: 4.933333rem;
-        height: 6.493333rem;
+        min-height: 6.493333rem;
         background: #fff;
         font-size: 0.373333rem;
         margin-right: 0.133333rem;

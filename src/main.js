@@ -16,8 +16,9 @@ import { Badge } from 'mint-ui';
 Vue.component("mt-badge", Badge);
 import { Actionsheet } from 'mint-ui';
 Vue.component("mt-actionsheet", Actionsheet);
+import { Loadmore } from "mint-ui"
+Vue.component("mt-loadmore",Loadmore);
 
-// Vue.use(MuseUI);
 Vue.config.productionTip = false;
 
 Vue.component("my-nav", Nav);
