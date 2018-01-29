@@ -116,6 +116,9 @@
                 if(response.result === 1){
                   //注册成功
                   con.toast("注册成功");
+                  if (response.data.openidUrl) {//跳转微信
+                    window.location.href = response.data.openidUrl;
+                  }
                   setTimeout(() => {
                     this.$router.push("/me");
                   }, 1500);

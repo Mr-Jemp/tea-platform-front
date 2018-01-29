@@ -31,7 +31,6 @@
         </li>
       </ul>
     </section>
-
     <my-nav :current="2"></my-nav>
   </div>
 </template>
@@ -163,7 +162,7 @@
       height: 100%;
       display: flex;
       overflow-x: scroll;
-      &::-webkit-scrollbar{
+      &::-webkit-scrollbar {
         display: none;
       }
 

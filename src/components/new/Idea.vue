@@ -27,7 +27,7 @@
             <i @click="deleteImg($event)" class="close"></i>
           </li>
           <li>
-            <input @change="updataImg($event)" id="file" type="file" />
+            <input @change="updataImg($event)" id="file" type="file" accept="image/*" />
           </li>
         </ul>
       </div>

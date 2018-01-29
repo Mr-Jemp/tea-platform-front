@@ -120,6 +120,7 @@
                     }, (response) => {
                       if (response.result === 1) {
                         con.toast("提现成功");
+                        this.$router.push("/record");
                         setTimeout(() => {
                           this.disabled = true;
                         }, 100)

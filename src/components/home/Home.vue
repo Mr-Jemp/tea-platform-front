@@ -85,6 +85,19 @@
       </ul>
     </div>
 
+    <ul class="list clearfix"
+        v-infinite-scroll="getData"
+        :infinite-scroll-disabled="loading"
+        infinite-scroll-distance="0">
+      <li class="item" v-for="item in recommendList">
+        <router-link :to="'/details?id='+item.id">
+          <img :src="item.coverImg"/>
+          <span class="text-info">{{item.name}}</span>
+          <span class="price">&yen; {{item.price}}</span>
+        </router-link>
+      </li>
+    </ul>
+
     <!--底部导航栏-->
     <my-nav :current="0"></my-nav>
   </div>
@@ -93,8 +106,7 @@
 <script>
   import {con} from '../../assets/js/common'
 
-  let self, swiper1, swiper2;
-
+  let self,swiper1, swiper2;
   export default {
     name: 'home',
     data() {
@@ -104,15 +116,22 @@
         newId: "",
         orderrolls: [],
         hot: {},
+        recommendList: [],
+        loading: false
       }
     },
-    mounted() {
+    created(){
+      this.pageNo = 1;
       self = this;
+    },
+    mounted() {
+      // self = this;
+      // console.log(self);
       //初始化轮播图
       self.initSwiper();
 
       //请求首页数据
-      self.getData();
+      // self.getData();
 
     },
     methods: {
@@ -138,17 +157,29 @@
        * 获取首页数据
        */
       getData() {
-        con.get("/api/index/home", function (response) {
+
+        if(this.loading) {
+          return;
+        }
+        this.loading = true;
+        con.get("/api/index/home?rows=4&pageNo=" + this.pageNo, function (response) {
           if (response.result === 1) {
-            self.bannerList = response.data.bannerList;
-            self.fathterCatagory = response.data.fathterCatagory;
-            self.newId = response.data.newId;
-            self.orderrolls = response.data.orderrolls;
-            self.hot = response.data.hot;
-            setTimeout(() => {
-              swiper1.update();
-              swiper2.update();
-            }, 200);
+            if(self.pageNo === 1) {
+              self.bannerList = response.data.bannerList;
+              self.fathterCatagory = response.data.fathterCatagory;
+              self.newId = response.data.newId;
+              self.orderrolls = response.data.orderrolls;
+              self.hot = response.data.hot;
+              setTimeout(() => {
+                swiper1.update();
+                swiper2.update();
+              }, 0);
+            }
+            if(response.data.recommendList.length > 0) {
+              self.recommendList = self.recommendList.concat(response.data.recommendList);
+              self.pageNo++;
+              self.loading = false;
+            }
           } else {
             con.toast(response.msg);
           }
@@ -297,7 +328,7 @@
       display: flex;
       margin-bottom: 3px;
       overflow-x: scroll;
-      &::-webkit-scrollbar{
+      &::-webkit-scrollbar {
         display: none;
       }
       li {
@@ -407,6 +438,48 @@
           width: 100%;
         }
       }
+    }
+  }
+
+  .list {
+    padding-top: 10/75rem;
+    background-color: #f5f5f5;
+    .item {
+      float: left;
+      width: 4.933333rem;
+      min-height: 6.493333rem;
+      background: #fff;
+      font-size: 0.373333rem;
+      margin-right: 0.133333rem;
+      margin-bottom: 0.133333rem;
+      a {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+
+      img {
+        width: 4.933333rem;
+        height: 4.933333rem;
+      }
+
+      .text-info {
+        display: block;
+        padding: 0.2rem 0.133333rem;
+        color: #666;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+      }
+      .price {
+        display: block;
+        color: #c63535;
+        padding: 0px 0.133333rem;
+        font-weight: 600;
+      }
+    }
+    .item:nth-of-type(even) {
+      margin-right: 0;
     }
   }
 </style>

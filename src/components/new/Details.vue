@@ -55,7 +55,7 @@
           <span class="original">&yen;{{shopInfo.price}}</span>
         </li>
         <li>
-          <p class="express">快递费：￥{{shopInfo.fee}}.00或{{shopInfo.discount}}积分(满{{shopInfo.feeReachFree}}元免邮)</p>
+          <p class="express">快递费：￥{{shopInfo.fee}}.00<span v-if="shopInfo.discount">或{{shopInfo.discount}}积分</span><span v-if="shopInfo.feeReachFree">(满{{shopInfo.feeReachFree}}元免邮)</span></p>
         </li>
       </ul>
 
@@ -109,9 +109,8 @@
             </div>
           </div>
           <div class="two">{{item.content}}</div>
-          <div class="three">
+          <div v-if="item.src" class="three">
             <img v-for="srcIndex in item.src.split(',')" :src="srcIndex" alt=""/>
-            <!--<img src="../../assets/web/user_img.png" alt="" />-->
           </div>
         </div>
         <div v-show="evaluateList.length == 0" class="not-evaluate">暂无评价</div>
@@ -260,10 +259,13 @@
   import {con} from "../../assets/js/common"
   import $ from "jquery"
 
+  let url = window.location.href;
+
   export default {
     name: 'details',
     data() {
       return {
+        id: "",
         isLogin: false,
         imageList: [],//轮播图
         type: 1,
@@ -288,7 +290,7 @@
         //二级列表
         secondList: [],
         //库存
-        quantityShow: "",
+        quantityShow: 0,
         //一级分类id
         firstId: "",
         //规格
@@ -311,12 +313,18 @@
         serverPhone: "",
       }
     },
+    created() {
+      this.id = this.$route.query.id;
+    },
     mounted() {
       this.getLoginStatus();
       this.getShopDetail();
       this.contactService();
     },
     methods: {
+      /**
+       * 获取登录状态
+       */
       getLoginStatus() {
         con.get("/api/my/index", (response) => {
           if (response.result === 1) {
@@ -346,17 +354,14 @@
         this.shop = false;
         this.detail = false;
         this.evaluate = true;
-        let url = location.href;
-        if (url.indexOf("?") !== -1) {
-          let id = url.split("?")[1].split("=")[1];
-          con.get("/api/comment/product/list?id=" + id, (response) => {
-            if (response.result === 1) {
-              this.evaluateList = response.data.commentProductList;
-            } else {
-              con.toast(response.msg)
-            }
-          })
-        }
+        con.get("/api/comment/product/list?id=" + this.id, (response) => {
+          if (response.result === 1) {
+            this.evaluateList = response.data.commentProductList;
+            console.log(this.evaluateList)
+          } else {
+            con.toast(response.msg);
+          }
+        })
       },
       /**
        * 商品轮播
@@ -372,65 +377,60 @@
        * 获取商品信息
        */
       getShopDetail() {
-        let url = window.location.href;
-        if (url.indexOf("?") !== -1) {
-          let id = url.split("?")[1].split("=")[1];
-          this.pid = id;
-          con.get("/api/product/detail?id=" + id, (response) => {
-            if (response.result === 1) {
-              this.details = response.data.detail;
-              this.imageList = response.data.imageList;
-              this.shopInfo.name = response.data.name;
-              this.shopInfo.preferentialPrice = response.data.preferentialPrice;
-              this.shopInfo.price = response.data.price;
-              this.shopInfo.fee = response.data.expressFee.fee;
-              this.shopInfo.discount = response.data.expressFee.discount;
-              this.shopInfo.discount2 = response.data.discount;
-              this.shopInfo.feeReachFree = response.data.expressFee.feeReachFree;
-              this.shopInfo.coverImg = response.data.coverImg;
-              this.shopInfo.saleType = response.data.saleType;
-              if (response.data.allFirstTypes.length === 0) {//不是衣服
-                this.firstList = response.data.allSecondTypes;
-                this.ifClothes = false;
-              } else {
-                response.data.allFirstTypes.map(function (obj) {
-                  obj.isCheck = true;
-                  return obj;
-                });
-                response.data.allSecondTypes.map(function (obj) {
-                  obj.isCheck = true;
-                  return obj
-                });
-                this.firstList = response.data.allFirstTypes;
-                this.clothesList = response.data.allSecondTypes;
-                this.ifClothes = true;
-              }
-              setTimeout(() => {
-                this.getSwiper();
-              }, 200);
+        this.pid = this.id;
+        con.get("/api/product/detail?id=" + this.id, (response) => {
+          if (response.result === 1) {
+            this.details = response.data.detail;
+            this.imageList = response.data.imageList;
+            this.shopInfo.name = response.data.name;
+            this.shopInfo.preferentialPrice = response.data.preferentialPrice;
+            this.shopInfo.price = response.data.price;
+            this.shopInfo.fee = response.data.expressFee.fee;
+            this.shopInfo.discount = response.data.expressFee.discount;
+            this.shopInfo.discount2 = response.data.discount;
+            this.shopInfo.feeReachFree = response.data.expressFee.feeReachFree;
+            this.shopInfo.coverImg = response.data.coverImg;
+            this.shopInfo.saleType = response.data.saleType;
+            if (response.data.allFirstTypes.length === 0) {//不是衣服
+              this.firstList = response.data.allSecondTypes;
+              this.ifClothes = false;
             } else {
-              con.toast(response.msg)
+              response.data.allFirstTypes.map(function (obj) {
+                obj.isCheck = true;
+                return obj;
+              });
+              response.data.allSecondTypes.map(function (obj) {
+                obj.isCheck = true;
+                return obj
+              });
+              this.firstList = response.data.allFirstTypes;
+              this.clothesList = response.data.allSecondTypes;
+              this.ifClothes = true;
             }
-          })
-        }
+            setTimeout(() => {
+              this.getSwiper();
+            }, 200);
+          } else {
+            con.toast(response.msg)
+          }
+        })
       },
       /**
        * 获取默认选中商品
        */
       getDefaultShop() {
         this.firstStand = this.firstList[0].secondType || this.firstList[0].firstType;
+
         if (this.clothesList[0]) {
           this.secondStand = this.clothesList[0].secondType || "";
         }
-        let url = location.href;
-        if (url.indexOf("?") !== -1) {
-          let id = url.split("?")[1].split("=")[1];
-          con.get("/api/product/standard?id=" + id + "&secondType=" + this.firstStand, (response) => {
-            this.firstId = response.data.secondTypes[0].id;
-            this.quantityShow = response.data.secondTypes[0].quantityShow;
-          })
-        }
-        $(".two .second li").eq(0).addClass("active");
+
+        con.get("/api/product/standard?id=" + this.id + "&secondType=" + this.firstStand, (response) => {
+          this.firstId = response.data.secondTypes[0].id;
+          this.quantityShow = response.data.secondTypes[0].quantityShow;
+        })
+
+        $(".two .second li").eq(0).addClass("active").siblings().removeClass("active");
         $("#select").html("已选择 " + this.firstStand);
       },
       /**
@@ -473,37 +473,34 @@
             $ele.addClass("active").siblings().removeClass("active");
             $("#select").html("已选择 " + this.firstStand);
             $('.three-list li').removeClass("active");
-            let url = window.location.href;
-            if (url.indexOf("?") !== -1) {
-              let id = url.split("?")[1].split("=")[1];
-              con.get("/api/product/standard?id=" + id + "&secondType=" + encodeURI(secondType) + "&firstTypeId=" + secondId, (response) => {
-                if (response.result === 1) {
-                  if (this.ifClothes) {//服装
-                    let size;
-                    let isHas;
-                    this.temp = response.data.secondTypes;
-                    this.clothesList.map(obj => {
-                      size = obj.secondType;
-                      isHas = false;
-                      this.temp.forEach((value) => {
-                        if (size === value.secondType) {
-                          isHas = true;
-                        }
-                      });
-                      obj.isCheck = isHas;
-                      return obj;
-                    });
-                    this.firstId = secondId;
 
-                  } else {
-                    this.quantityShow = response.data.secondTypes[0].quantityShow;
-                    this.firstId = response.data.secondTypes[0].id;
-                  }
+            con.get("/api/product/standard?id=" + this.id + "&secondType=" + encodeURI(secondType) + "&firstTypeId=" + secondId, (response) => {
+              if (response.result === 1) {
+                if (this.ifClothes) {//服装
+                  let size;
+                  let isHas;
+                  this.temp = response.data.secondTypes;
+                  this.clothesList.map(obj => {
+                    size = obj.secondType;
+                    isHas = false;
+                    this.temp.forEach((value) => {
+                      if (size === value.secondType) {
+                        isHas = true;
+                      }
+                    });
+                    obj.isCheck = isHas;
+                    return obj;
+                  });
+                  this.firstId = secondId;
+
                 } else {
-                  con.toast(response.msg);
+                  this.quantityShow = response.data.secondTypes[0].quantityShow;
+                  this.firstId = response.data.secondTypes[0].id;
                 }
-              })
-            }
+              } else {
+                con.toast(response.msg);
+              }
+            })
           } else {
             $ele.removeClass("active");
             this.quantityShow = 0;
@@ -520,9 +517,9 @@
         if (this.buyCount < this.quantityShow) {
           this.buyCount++;
         } else {
-          if(this.shopInfo.saleType === 2){
+          if (this.shopInfo.saleType === 2) {
             this.buyCount++;
-          }else{
+          } else {
             con.toast("亲，库存好像不够了呢/(ㄒoㄒ)/~~");
           }
         }
@@ -553,10 +550,10 @@
             if (this.quantityShow > 0) {
               this.carFn();
             } else {
-              if(this.shopInfo.saleType === 2){
+              if (this.shopInfo.saleType === 2) {
                 //限时商品库存为零，但不限制购买
                 this.carFn();
-              }else{
+              } else {
                 con.toast("亲，库存好像不够了呢/(ㄒoㄒ)/~~");
               }
             }
@@ -570,7 +567,10 @@
           }, 1000)
         }
       },
-      carFn(){
+      /**
+       * 添加购物车
+       */
+      carFn() {
         let shopCar = {
           id: this.firstId,
           src: this.shopInfo.coverImg,
@@ -597,11 +597,11 @@
               + "&firstStand=" + this.firstStand + "&secondStand=" + this.secondStand + "&firstStandId=" + this.firstId + "&repertory=" + this.quantityShow + "&original="
               + this.shopInfo.price + "&price=" + this.shopInfo.preferentialPrice + "&pid=" + this.pid);
           } else {
-            if(this.shopInfo.saleType === 2){
+            if (this.shopInfo.saleType === 2) {
               this.$router.push("/confirm_order?id=" + this.firstId + "&count=" + this.buyCount + "&name=" + this.shopInfo.name
                 + "&firstStand=" + this.firstStand + "&secondStand=" + this.secondStand + "&firstStandId=" + this.firstId + "&repertory=" + this.quantityShow + "&original="
                 + this.shopInfo.price + "&price=" + this.shopInfo.preferentialPrice + "&pid=" + this.pid);
-            }else{
+            } else {
               con.toast("亲，库存好像不够了呢/(ㄒoㄒ)/~~");
             }
           }
@@ -969,6 +969,8 @@
 
   .evaluate-wrap {
     /*min-height: 15.333333rem;*/
+    padding-bottom: 10px;
+    background-color: #fff;
     .evaluate {
       width: 100%;
       background: #fff;
@@ -989,6 +991,9 @@
         width: 100%;
         padding: 0.4rem 0;
         border-bottom: 1px solid #e5e5e5;
+        &:last-child {
+          border-bottom: 0;
+        }
         .one {
           .left {
             float: left;

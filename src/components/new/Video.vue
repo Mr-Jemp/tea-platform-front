@@ -16,10 +16,10 @@
           <i class="icon1"></i>
           <span class="text">直播</span>
         </h3>
-        <router-link to="/" v-for="item in video.videoLive">
-          <img :src="item.image"/>
-          <span class="caption">{{item.title}}</span>
-        </router-link>
+        <a :href="video.videoLive.videoUrl">
+          <img :src="video.videoLive.image"/>
+          <span class="caption">{{video.videoLive.title}}</span>
+        </a>
       </div>
 
       <!--视频-->
@@ -72,7 +72,9 @@
   min-height: 100vh;
   background: #f5f5f5;
 }
-
+.video-list{
+  padding-bottom: .4rem;
+}
 .content{
   width: 100%;
   padding: 0 0.4rem;

@@ -11,10 +11,10 @@
     <section class="content">
       <div class="wrap">
 
-        <div v-if="detailList.method == 1" class="income">{{-detailList.amount}}</div>
-        <div v-if="detailList.method == 2" class="income">{{+detailList.amount}}</div>
-        <div v-if="detailList.method == 3" class="income">{{+detailList.amount}}</div>
-        <div v-if="detailList.method == 4" class="income">{{-detailList.amount}}</div>
+        <div v-if="detailList.method == 1" class="income">-{{detailList.amount}}</div>
+        <div v-if="detailList.method == 2" class="income">+{{detailList.amount}}</div>
+        <div v-if="detailList.method == 3" class="income">+{{detailList.amount}}</div>
+        <div v-if="detailList.method == 4" class="income">-{{detailList.amount}}</div>
 
         <ul class="details">
           <li class="item">
@@ -33,6 +33,15 @@
               <span v-if="detailList.method == 2">佣金</span>
               <span v-if="detailList.method == 3">退款</span>
               <span v-if="detailList.method == 4">提现</span>
+            </div>
+          </li>
+          <li class="item" >
+            <span class="left-text">积分说明</span>
+            <div class="right-text">
+              <span v-if="detailList.method == 1">{{detailList.discount}}</span>
+              <span v-if="detailList.method == 2">{{detailList.discount}}</span>
+              <span v-if="detailList.method == 3">+{{detailList.discount}}积分</span>
+              <span v-if="detailList.method == 4">{{detailList.discount}}</span>
             </div>
           </li>
           <li class="item">
@@ -54,8 +63,8 @@
             <span class="right-text">{{detailList.outTradeNo}}</span>
           </li>
         </ul>
-
       </div>
+      <p v-if="detailList.method == 1 || detailList.method == 5" class="notice">注意：确认收货后，积分才会到账</p>
     </section>
 
   </div>
@@ -78,9 +87,7 @@
         if (this.$route.query.id) {
           con.get("/api/turnover/detail?id=" + this.$route.query.id, (response) => {
             if (response.result === 1) {
-
               this.detailList = response.data;
-              console.log(response.data)
             } else {
               con.toast(response.msg);
             }
@@ -158,6 +165,11 @@
         }
       }
 
+    }
+    .notice{
+      font-size: 26/75rem;
+      color: #ec3a3a;
+      padding: 20/75rem 30/75rem;
     }
   }
 </style>

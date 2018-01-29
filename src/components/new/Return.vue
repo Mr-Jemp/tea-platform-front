@@ -53,6 +53,7 @@
         textarea: "",
         imgLength: 3,
         arr: [],
+        imgName: [],
         userImg: "",
         contact: "",
         hasGetPhone: false,
@@ -83,7 +84,8 @@
             con.post("/api/order/refund", {
               "id": this.$route.query.id,
               "refundReason": this.textarea,
-              "refundImage": self.userImg
+              "refundImage": self.userImg,
+              "mobile": self.contact
             }, (response) => {
               if (response.result === 1) {
                 con.toast("提交成功，我们会尽快处理");
@@ -106,8 +108,9 @@
       deleteImg(e) {
         if (self.arr.length) {
           self.arr.splice($(e.target.parentNode).index(), 1);//删除当前元素的下标
+          self.imgName.splice($(e.target.parentNode).index(), 1);//删除当前元素的下标
           con.toast("删除成功");
-          self.userImg = self.arr.join(";");
+          self.userImg = self.imgName.join(";");
         }
       },
       /**
@@ -124,7 +127,8 @@
               "data": img
             }, (response) => {
               self.arr.push(response.data.src);
-              self.userImg = self.arr.join(";");
+              self.imgName.push(response.data.name);
+              self.userImg = self.imgName.join(";");
               if (e.target.value) {//清空input value值
                 e.target.value = "";
               }

@@ -544,11 +544,9 @@
       background-size: cover;
       display: inline-block;
       vertical-align: text-bottom;
+
     }
-    /*.checkbox:focus{
-      background: url(../../assets/web/checkbox_checked.png) 0 0 no-repeat;
-      background-size: cover;
-    }*/
+
 
     .total {
       position: absolute;

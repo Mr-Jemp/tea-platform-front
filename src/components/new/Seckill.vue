@@ -9,7 +9,7 @@
     </header>
 
     <section class="content">
-      <div class="no-content" v-if="!!productInfo.productList">暂无数据</div>
+      <div class="no-content" v-if="!productInfo.productList">暂无数据</div>
 
       <ul class="shop-list clearfix">
         <li v-for="item in productInfo.productList">
@@ -48,7 +48,9 @@
   export default {
     data() {
       return {
-        productInfo: {},
+        productInfo: {
+          productList: [],
+        },
       }
     },
     mounted() {
@@ -99,7 +101,7 @@
               return product;
             });
             this.productInfo = response.data;
-
+            console.log(this.productInfo)
           } else {
             con.toast(response.msg)
           }

@@ -126,10 +126,9 @@
           this.highPrice + "&keyword=" + this.keyword, (response) => {
           if (response.result === 1) {
             if (response.data.productList.length <= 0) {
-              con.toast("抱歉，没有数据呢", "center")
+              con.toast("抱歉，暂无数据", "center")
             } else {
               this.productList = response.data.productList;
-//              console.log(this.productList);
             }
           } else {
             con.toast(response.msg)

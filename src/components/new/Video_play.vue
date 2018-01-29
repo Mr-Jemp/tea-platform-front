@@ -85,7 +85,6 @@
   }
 
   .content {
-
     .vplay-btn {
       display: block;
       width: 1.333333rem;
@@ -219,7 +218,7 @@
 
     .video-list {
       width: 100%;
-
+      padding-bottom: .2rem;
       .item {
         float: left;
         width: 4.933333rem;

@@ -12,9 +12,9 @@
     <div v-if="payStatus == 1" class="status">已支付</div>
     <div v-if="payStatus == 2" class="status">已发货</div>
     <div v-if="payStatus == 3" class="status">已收货</div>
-    <div v-if="payStatus == 4" class="status">取消订单</div>
+    <div v-if="payStatus == 4" class="status">交易关闭</div>
     <div v-if="payStatus == 5" class="status">申请退款</div>
-    <div v-if="payStatus == 6" class="status">交易关闭</div>
+    <div v-if="payStatus == 6" class="status">交易完成</div>
 
     <div class="address">
       <div class="one">
@@ -82,7 +82,7 @@
     </div>
 
     <!--商品金额-->
-    <ul class="money">
+    <ul class="money" v-if="order.refundStastus != 0">
       <li>
         <span>商品总额</span>
         <span>&yen;{{order.payAmount}}</span>
@@ -93,7 +93,7 @@
       </li>
     </ul>
     <!--实付款-->
-    <div class="pay">
+    <div class="pay" v-if="order.refundStastus != 0">
       <span>实付款：</span>
       <span class="price">&yen;{{total}}</span>
     </div>
