@@ -26,7 +26,7 @@
           <router-link :to="'/details?id='+item.id">
             <img :src="item.coverImg"/>
             <span class="text-info">{{item.name}}</span>
-            <span class="price">&yen; {{item.price}}</span>
+            <span class="price">&yen; {{item.preferentialPrice}}</span>
           </router-link>
         </li>
       </ul>

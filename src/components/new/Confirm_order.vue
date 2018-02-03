@@ -271,9 +271,10 @@
        */
       getBuyShop() {
         let url = window.location.href;
+        let $query = this.$route.query;
         if (url.indexOf("?") !== -1) {//判断参数是否存在，存在则是单品购买
           let obj = con.urlToObj(url);
-          this.buyShop.id = obj.id;
+          /*this.buyShop.id = obj.id;
           this.buyShop.count = obj.count;//购买数量
           this.buyShop.name = decodeURI(obj.name);
           this.buyShop.firstStand = decodeURI(obj.firstStand);//商品第二属性
@@ -282,7 +283,17 @@
           this.buyShop.repertory = obj.repertory;//库存
           this.buyShop.original = obj.original;//商品原价
           this.buyShop.price = obj.price;//商品当前价格
-          this.buyShop.pid = obj.pid;
+          this.buyShop.pid = obj.pid;*/
+          this.buyShop.id = $query.id;
+          this.buyShop.count = $query.count;
+          this.buyShop.name = decodeURI($query.name);
+          this.buyShop.firstStand = decodeURI($query.firstStand);
+          this.buyShop.secondStand = decodeURI($query.secondStand);
+          this.buyShop.firstStandId = $query.firstStandId;
+          this.buyShop.repertory = $query.repertory;
+          this.buyShop.original = $query.original;
+          this.buyShop.price = $query.price;
+          this.buyShop.pid = $query.pid;
           this.totalCount = this.buyShop.count;
           con.get("/api/product/detail?id=" + this.buyShop.pid, (response) => {
             if (response.result === 1) {

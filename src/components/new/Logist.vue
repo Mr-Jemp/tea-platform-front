@@ -19,43 +19,17 @@
       <div class="track-info">
         <div class="left">
           <ul class="left-line">
-            <li></li>
-            <li></li>
-            <li></li>
-            <li></li>
-            <li></li>
+            <li v-for="item in leftLength"></li>
           </ul>
         </div>
         <div class="right">
           <ul>
-            <li>
+            <li v-for="item in list">
               <p class="text-info">
-                <span class="text-2">广州分拨中心</span>
-                <span class="text-2">已发出</span>
+                <span class="text-2">{{item.remark}}</span>
               </p>
               <p class="date">
-                <span class="text-3">2017-10-11</span>
-                <span class="text-3">12:00:00</span>
-              </p>
-            </li>
-            <li>
-              <p class="text-info">
-                <span class="text-2">快件已到达</span>
-                <span class="text-2">四川成都分拨中心</span>
-              </p>
-              <p class="date">
-                <span class="text-3">2017-10-10</span>
-                <span class="text-3">23:00:00</span>
-              </p>
-            </li>
-            <li>
-              <p class="text-info">
-                <span class="text-2">XXX收件员</span>
-                <span class="text-2">XXX收件员</span>
-              </p>
-              <p class="date">
-                <span class="text-3">2017-10-09</span>
-                <span class="text-3">12:00:00</span>
+                <span class="text-3">{{item.datetime}}</span>
               </p>
             </li>
           </ul>
@@ -74,7 +48,8 @@
     data() {
       return {
         id: this.$route.query.id,
-        list: [],
+        list: [{}],
+        leftLength: [],
         company: "",
         no: "",
       }
@@ -87,9 +62,22 @@
         con.get("/api/order/logistics?id=" + this.id, response => {
           if (response.result === 1) {
             this.list = response.data.list;
-            console.log(list)
+            /*
+                //3   2
+                //4   3
+                //5   4
+                //6   5
+                左边生成点的对应规律：点对应数组长度，竖线对应数组长度减一
+                    如果数组长度等于一，对应生成一个点不带竖线，否则，生成
+                    的li个数为：数组的长度个点 + 数组长度减一根竖线
+            */
+            if(this.list.length == 1){
+              this.leftLength = this.list.length;
+            }else{
+              this.leftLength = this.list.length + (this.list.length - 1);
+            }
           } else {
-            con.toast(response.msg)
+            con.toast(response.msg);
           }
         })
       }
@@ -158,7 +146,7 @@
           }
           li:nth-of-type(even) {
             width: 1px;
-            height: 1.4rem;
+            height: 1.6rem;
             background: #ccc;
             margin-left: 2px;
           }
@@ -176,8 +164,7 @@
         ul {
           li {
             width: 100%;
-            height: 1.6rem;
-            padding: 0.4rem 0;
+            padding: 0.4rem 0.4rem 0.4rem 0;
             border-bottom: 1px solid #e5e5e5;
 
             &:last-child {
